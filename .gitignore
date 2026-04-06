@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+adal_text.txt
+extract_pdf.py
+*.log
+.vercel

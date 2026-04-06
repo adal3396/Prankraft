@@ -1,0 +1,11 @@
+{
+  "name": "prankraft-portfolio",
+  "version": "1.0.0",
+  "description": "A deceptive portfolio website for the Prankraft competition - looks premium, behaves chaotically!",
+  "private": true,
+  "scripts": {
+    "dev": "npx -y serve .",
+    "build": "echo 'Static site - no build needed'",
+    "start": "npx -y serve ."
+  }
+}
