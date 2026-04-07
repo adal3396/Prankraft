@@ -91,6 +91,11 @@
           <li><strong>Real-time updates:</strong> Balancing prediction accuracy with response time for the live dashboard required efficient caching and batch processing.</li>
         </ul>
       </section>
+      <section class="proj-section">
+        <h2>Source Code Browser</h2>
+        <p>Browse the public GitHub repository directly from this page. Click a file on the left to preview its contents.</p>
+        <div class="source-browser" data-source-browser data-github-owner="adal3396" data-github-repo="Stock-Forecast"></div>
+      </section>
     </div>
 
     <div class="project-footer-nav">
@@ -102,5 +107,6 @@
     const cursor = document.getElementById('custom-cursor');
     document.addEventListener('mousemove', e => { cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; });
   </script>
+  <script src="/projects/source-browser.js"></script>
 </body>
 </html>
