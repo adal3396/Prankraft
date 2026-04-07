@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RISC CPU Simulator — Project | Adal Seju</title>
+  <meta name="description" content="Full-featured RISC CPU simulator with step-by-step execution visualization.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/pages.css">
+</head>
+<body>
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  <div class="bg-orbs"><div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div><div class="bg-orb orb-3"></div></div>
+  <div id="custom-cursor" class="custom-cursor"></div>
+
+  <nav class="page-nav">
+    <div class="page-nav-inner">
+      <a href="/" class="nav-logo"><span class="logo-bracket">{</span><span class="logo-text">AS</span><span class="logo-bracket">}</span></a>
+      <div class="page-nav-links">
+        <a href="/">Home</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/resume.html">Resume</a>
+        <a href="/playground.html">Playground</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container project-page">
+    <a href="/#projects" class="breadcrumb">← Back to Projects</a>
+
+    <div class="project-hero">
+      <div class="project-icon" style="background: linear-gradient(135deg, #1a1a3e, #3d2b7a);">🖥️</div>
+      <h1>RISC CPU Simulator</h1>
+      <p class="project-tagline">A full-featured RISC processor simulator with visual step-by-step execution, register inspection, and memory visualization.</p>
+      <div class="project-links">
+        <a href="https://risc-simulator.vercel.app" target="_blank" class="proj-btn proj-btn-primary">🚀 Live Demo</a>
+        <a href="https://github.com/adal3396/Risc_Simulator.git" target="_blank" class="proj-btn proj-btn-secondary">📦 Source Code</a>
+      </div>
+    </div>
+
+    <div class="project-body">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>The RISC CPU Simulator provides a complete educational environment for understanding processor architecture. Users can write assembly programs, step through execution cycle-by-cycle, and observe how each instruction modifies registers, memory, and the program counter in real-time.</p>
+      </section>
+
+      <section class="proj-section">
+        <h2>Tech Stack</h2>
+        <div class="tech-pills">
+          <span class="tech-pill">TypeScript</span>
+          <span class="tech-pill">React</span>
+          <span class="tech-pill">Express.js</span>
+          <span class="tech-pill">Node.js</span>
+          <span class="tech-pill">MongoDB</span>
+          <span class="tech-pill">Monorepo Architecture</span>
+          <span class="tech-pill">Vercel</span>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <h2>Key Features</h2>
+        <div class="feature-grid">
+          <div class="feature-card"><span>⚡</span><h3>Step-by-Step Execution</h3><p>Watch each instruction execute cycle-by-cycle with highlighted pipeline stages</p></div>
+          <div class="feature-card"><span>📝</span><h3>Assembly Editor</h3><p>Built-in code editor with syntax highlighting and error detection</p></div>
+          <div class="feature-card"><span>🔍</span><h3>Register Inspector</h3><p>Real-time view of all 32 registers with change highlighting</p></div>
+          <div class="feature-card"><span>💾</span><h3>Memory Viewer</h3><p>Hex/decimal memory visualization with read/write tracking</p></div>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <h2>Architecture</h2>
+        <div class="arch-diagram">
+          <div class="arch-step"><div class="arch-num">1</div><div><strong>Parser</strong><br>Assembly → Tokens</div></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-step"><div class="arch-num">2</div><div><strong>Assembler</strong><br>Tokens → Machine Code</div></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-step"><div class="arch-num">3</div><div><strong>CPU Core</strong><br>Fetch → Decode → Execute</div></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-step"><div class="arch-num">4</div><div><strong>Visualizer</strong><br>State → React UI</div></div>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <h2>Challenges & Learnings</h2>
+        <ul class="challenge-list">
+          <li><strong>Monorepo management:</strong> Coordinating TypeScript types across core simulation engine, Express API, and React frontend required careful workspace configuration.</li>
+          <li><strong>Instruction pipelining:</strong> Accurately modeling pipeline hazards and forwarding logic was the most complex algorithmic challenge.</li>
+          <li><strong>Vercel deployment:</strong> Migrating the Express backend to Vercel Serverless Functions required restructuring the API layer while maintaining the monorepo structure.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="project-footer-nav">
+      <a href="/projects/stock-forecast.html" class="next-project">← Previous: Stock Forecast AI</a>
+      <a href="/projects/nextnest.html" class="next-project">Next: NextNest Platform →</a>
+    </div>
+  </div>
+
+  <script>
+    const cursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', e => { cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; });
+  </script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Adal Seju | Thoughts on Code & Chaos</title>
+  <meta name="description" content="Articles on web development, design, and the art of controlled chaos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .page-header {
+      padding: 160px 0 80px; text-align: center; position: relative; z-index: 1;
+    }
+    .page-header h1 {
+      font-family: var(--font-primary); font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900; margin-bottom: 16px;
+    }
+    .page-header p { color: var(--text-secondary); max-width: 500px; margin: 0 auto; line-height: 1.6; }
+    .blog-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 32px; padding: 0 0 120px; position: relative; z-index: 1;
+    }
+    .blog-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg); overflow: hidden;
+      transition: var(--transition-medium); cursor: none;
+    }
+    .blog-card:hover {
+      border-color: var(--border-glow); transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(124, 92, 252, 0.1);
+    }
+    .blog-card-img {
+      width: 100%; aspect-ratio: 16/9; display: flex;
+      align-items: center; justify-content: center; font-size: 3rem;
+    }
+    .blog-card-body { padding: 28px; }
+    .blog-meta {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-tertiary);
+    }
+    .blog-tag {
+      padding: 2px 10px; background: rgba(124, 92, 252, 0.1);
+      color: var(--accent-1); border-radius: var(--radius-sm);
+    }
+    .blog-card h2 {
+      font-family: var(--font-primary); font-size: 1.2rem;
+      font-weight: 700; margin-bottom: 8px; line-height: 1.4;
+      transition: color var(--transition-fast);
+    }
+    .blog-card:hover h2 { color: var(--accent-2); }
+    .blog-card p {
+      color: var(--text-secondary); font-size: 0.9rem;
+      line-height: 1.6; margin-bottom: 16px;
+    }
+    .blog-read-more {
+      font-family: var(--font-primary); font-weight: 600;
+      font-size: 0.85rem; color: var(--accent-1);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      transition: gap var(--transition-fast);
+    }
+    .blog-card:hover .blog-read-more { gap: 12px; }
+    .reading-time { color: var(--accent-3); font-style: italic; }
+
+    .blog-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(10,10,15,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color); padding: 0 40px;
+    }
+    .blog-nav-inner {
+      max-width: 1200px; margin: 0 auto; display: flex;
+      align-items: center; justify-content: space-between; height: 64px;
+    }
+    .blog-nav-links { display: flex; gap: 24px; }
+    .blog-nav-links a {
+      color: var(--text-secondary); text-decoration: none;
+      font-family: var(--font-secondary); font-size: 0.9rem;
+      transition: color var(--transition-fast);
+    }
+    .blog-nav-links a:hover, .blog-nav-links a.active { color: var(--accent-2); }
+
+    .blog-expand {
+      position: fixed; inset: 0; z-index: 9999; background: rgba(10,10,15,0.95);
+      backdrop-filter: blur(20px); display: none; overflow-y: auto;
+      padding: 80px 40px; animation: fadeIn 0.3s ease;
+    }
+    .blog-expand.active { display: block; }
+    .blog-expand-inner {
+      max-width: 720px; margin: 0 auto;
+    }
+    .blog-expand-close {
+      position: fixed; top: 20px; right: 20px; width: 40px; height: 40px;
+      border-radius: 50%; border: 1px solid var(--border-color); background: rgba(10,10,15,0.9);
+      color: var(--text-secondary); font-size: 1.2rem; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition-fast); z-index: 10000;
+    }
+    .blog-expand-close:hover { border-color: var(--accent-3); color: var(--accent-3); }
+    .blog-expand h1 {
+      font-family: var(--font-primary); font-size: 2.5rem;
+      font-weight: 800; margin-bottom: 24px; line-height: 1.3;
+    }
+    .blog-expand .blog-body {
+      font-size: 1.05rem; line-height: 1.9; color: var(--text-secondary);
+    }
+    .blog-expand .blog-body p { margin-bottom: 20px; }
+    .blog-expand .blog-body strong { color: var(--text-primary); }
+    .blog-expand .blog-body em { color: var(--accent-3); }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @media (max-width: 768px) {
+      .blog-grid { grid-template-columns: 1fr; }
+      .blog-nav-links { gap: 16px; }
+      .blog-expand { padding: 60px 20px; }
+      .blog-expand h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Background -->
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  <div class="bg-orbs"><div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div><div class="bg-orb orb-3"></div></div>
+  <div id="custom-cursor" class="custom-cursor"></div>
+
+  <!-- Nav -->
+  <nav class="blog-nav">
+    <div class="blog-nav-inner">
+      <a href="/" class="nav-logo"><span class="logo-bracket">{</span><span class="logo-text">AS</span><span class="logo-bracket">}</span></a>
+      <div class="blog-nav-links">
+        <a href="/">Home</a>
+        <a href="/blog.html" class="active">Blog</a>
+        <a href="/resume.html">Resume</a>
+        <a href="/playground.html">Playground</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="page-header">
+      <h1>The <span class="gradient-text">Blog</span></h1>
+      <p>Thoughts on web development, design patterns, and the sacred art of making things look easy.</p>
+    </header>
+
+    <div class="blog-grid" id="blog-grid">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+
+  <!-- Expanded blog view -->
+  <div class="blog-expand" id="blog-expand">
+    <button class="blog-expand-close" id="blog-close">✕</button>
+    <div class="blog-expand-inner">
+      <h1 id="expand-title"></h1>
+      <div class="blog-body" id="expand-body"></div>
+    </div>
+  </div>
+
+  <script>
+    // Cursor
+    const cursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+    });
+
+    // Blog data
+    const posts = [
+      {
+        title: "Why I Stopped Using Frameworks (For 24 Hours)",
+        tag: "Hot Take", date: "Apr 2, 2026",
+        reading: "∞ min read",
+        excerpt: "I tried going vanilla for a day. The CSS was raw. The JavaScript was unhinged. Here's what happened.",
+        img: "linear-gradient(135deg, #1a1033, #2d1b69)",
+        emoji: "🔥",
+        body: `<p>It started as an experiment. <strong>"How hard can vanilla JS be?"</strong> I whispered to myself, closing my VS Code extensions one by one like a surgeon removing life support.</p>
+<p>The first hour was <em>liberating</em>. No npm install. No webpack config. No 47MB node_modules. Just me, a script tag, and the audacity of a developer who hasn't read MDN in months.</p>
+<p>By hour three, I had reinvented React. Poorly. My "component system" was just a function that returned template literals. My "state management" was a global object called <strong>STUFF</strong>.</p>
+<p>By hour six, I was writing CSS without Tailwind. Do you know what it's like to type <em>display: flex</em> by hand? It's like churning your own butter. Technically possible, spiritually devastating.</p>
+<p>By hour twelve, I had built something beautiful. Something pure. Something that crashed in Safari.</p>
+<p><strong>Lesson learned:</strong> Frameworks exist for a reason. That reason is Safari.</p>
+<p><em>...just kidding. This entire portfolio is vanilla. Get pranked. 🎭</em></p>`
+      },
+      {
+        title: "The CSS Bug That Made Me Question Reality",
+        tag: "Debug Story", date: "Mar 28, 2026",
+        reading: "5 min read (or 5 hours debugging)",
+        excerpt: "A z-index of 9999 wasn't enough. The modal was behind the footer. Behind. The. Footer.",
+        img: "linear-gradient(135deg, #0c2340, #1a4b8c)",
+        emoji: "🐛",
+        body: `<p>It was 2 AM. The deadline was at 9 AM. My modal was behind the footer.</p>
+<p>Not just any footer. A footer with <strong>z-index: 1</strong>. My modal had <strong>z-index: 9999</strong>. According to every law of CSS, this should not be possible.</p>
+<p>I tried z-index: 99999. Nothing. z-index: 2147483647 (the max 32-bit integer). <em>Still behind the footer.</em></p>
+<p>After three hours, four coffees, and one existential crisis, I found it. A parent div had <strong>transform: translateZ(0)</strong>. This creates a new stacking context. The z-index was relative to that context, not the page.</p>
+<p>The fix was one line: remove the transform. But the emotional damage? <em>That required therapy.</em></p>
+<p><strong>Moral of the story:</strong> CSS stacking contexts are designed by someone who wants to watch the world burn. 🔥</p>`
+      },
+      {
+        title: "I Added Dark Mode. It Took 3 Months.",
+        tag: "Engineering", date: "Mar 15, 2026",
+        reading: "3 min read",
+        excerpt: "The toggle was easy. The 847 color variables were not.",
+        img: "linear-gradient(135deg, #1a3320, #2d6940)",
+        emoji: "🌙",
+        body: `<p>Adding a dark mode toggle takes 5 minutes, right? Just swap some colors? <em>RIGHT?</em></p>
+<p><strong>Week 1:</strong> Created CSS variables. Felt like a genius. Everything looked perfect in dark mode.</p>
+<p><strong>Week 2:</strong> Realized the logo was hardcoded as a dark PNG. Created 4 variants. Spent 2 days on the SVG.</p>
+<p><strong>Week 4:</strong> Found 23 places where colors were hardcoded as hex values instead of variables. Questioned every decision that led to this moment.</p>
+<p><strong>Week 8:</strong> Users reported the dark mode "flashes white on load." Added a script to the head that blocks rendering until the theme is loaded. Site now takes 3 extra milliseconds to load. Got a complaint about performance.</p>
+<p><strong>Week 12:</strong> Shipped. Users said <em>"Nice, but can you add an auto mode that follows the OS preference?"</em></p>
+<p>I closed my laptop and went outside. 🌿</p>`
+      },
+      {
+        title: "Confessions of a Console.log Debugger",
+        tag: "Confession", date: "Mar 5, 2026",
+        reading: "2 min (of pure honesty)",
+        excerpt: "I know debuggers exist. I know breakpoints exist. I simply choose violence.",
+        img: "linear-gradient(135deg, #2d1b2d, #4a2040)",
+        emoji: "🕵️",
+        body: `<p><strong>They say:</strong> "Use the browser debugger, it's more efficient!"</p>
+<p><strong>I hear:</strong> "Spend 10 minutes setting breakpoints when you could just console.log and scroll."</p>
+<p>My debugging process:</p>
+<p>1. console.log("here") — to check if code reaches this point<br>
+2. console.log("HERE") — to distinguish from the other "here"<br>
+3. console.log("HERE 2") — we're getting warmer<br>
+4. console.log("AAAAA") — frustration setting in<br>
+5. console.log(JSON.stringify(data, null, 2)) — accepting fate<br>
+6. console.log("WHY") — existential debugging</p>
+<p>And you know what? <em>It works every time.</em> Eventually.</p>
+<p><strong>Pro tip:</strong> Open the console on this website. I left you some messages. 🎭</p>`
+      },
+      {
+        title: "How to Survive a Code Review (Emotionally)",
+        tag: "Satire", date: "Feb 20, 2026",
+        reading: "4 min read",
+        excerpt: "\"Can you explain this function?\" they ask, about code you wrote at 3AM and don't remember.",
+        img: "linear-gradient(135deg, #33200a, #664400)",
+        emoji: "😰",
+        body: `<p>Code reviews are a wonderful practice where your colleagues politely tell you your code is trash.</p>
+<p><strong>Stage 1: Confidence</strong> — You submit the PR. "This is my best work," you think, gazing at your 400-line function with pride.</p>
+<p><strong>Stage 2: The First Comment</strong> — "Nit: can you rename this variable?" Sure, no problem. Easy fix. You're still fine.</p>
+<p><strong>Stage 3: The Architecture Question</strong> — "Have you considered using the Strategy pattern here?" You have not. You don't know what that is. You Google it. It's 47 pages long.</p>
+<p><strong>Stage 4: Bargaining</strong> — "Can we merge this and fix it in a follow-up?" No. The answer is always no.</p>
+<p><strong>Stage 5: Acceptance</strong> — You rewrite the entire thing. It's 12 lines now. It's better. <em>They were right all along.</em></p>
+<p>Code reviews: painful, humbling, and the reason your code doesn't catch fire in production. 🔥</p>`
+      },
+      {
+        title: "The Portfolio That Pranks You (Behind the Scenes)",
+        tag: "Meta", date: "Apr 6, 2026",
+        reading: "🎭 min read",
+        excerpt: "How I built a portfolio with 21 hidden pranks for the Prankraft competition. Spoilers inside.",
+        img: "linear-gradient(135deg, #1a0a2e, #4a1a6e)",
+        emoji: "🎭",
+        body: `<p>You're reading this on a portfolio that is <strong>actively pranking you</strong>. Right now. As you read this.</p>
+<p>For the IEEE Computer Society's <em>Prankraft</em> competition, I built what appears to be a normal developer portfolio. 21 hidden pranks lurk beneath the surface:</p>
+<p>The nav links scramble when you hover them. The "Hire Me" button begs. The contact form triggers a fake Blue Screen of Death. There's a cookie banner that <em>refuses to go away</em>.</p>
+<p>The tech stack? <strong>Pure vanilla HTML, CSS, and JavaScript.</strong> No React. No frameworks. Just 2000+ lines of organized chaos.</p>
+<p>The hardest part wasn't the pranks — it was making them <em>discoverable</em>. A prank nobody finds is just wasted code. That's why there's a floating counter, a reveal modal, and hints scattered everywhere.</p>
+<p>If you haven't found all 21 pranks yet, go back to the <a href="/" style="color: var(--accent-2);">main page</a> and keep clicking. <em>Everything</em> is interactive. 🎭</p>`
+      },
+    ];
+
+    // Render blog cards
+    const grid = document.getElementById('blog-grid');
+    posts.forEach((post, i) => {
+      const card = document.createElement('div');
+      card.className = 'blog-card';
+      card.innerHTML = `
+        <div class="blog-card-img" style="background: ${post.img};">${post.emoji}</div>
+        <div class="blog-card-body">
+          <div class="blog-meta">
+            <span class="blog-tag">${post.tag}</span>
+            <span>${post.date}</span>
+            <span class="reading-time">${post.reading}</span>
+          </div>
+          <h2>${post.title}</h2>
+          <p>${post.excerpt}</p>
+          <span class="blog-read-more">Read More →</span>
+        </div>
+      `;
+      card.addEventListener('click', () => openPost(i));
+      grid.appendChild(card);
+    });
+
+    // Expand post
+    const expandEl = document.getElementById('blog-expand');
+    const expandTitle = document.getElementById('expand-title');
+    const expandBody = document.getElementById('expand-body');
+    const closeBtn = document.getElementById('blog-close');
+
+    function openPost(index) {
+      const post = posts[index];
+      expandTitle.textContent = post.title;
+      expandBody.innerHTML = post.body;
+      expandEl.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Prank: paragraphs slowly change words
+      if (index === 0) {
+        setTimeout(() => {
+          const paras = expandBody.querySelectorAll('p');
+          if (paras[paras.length - 1]) {
+            paras[paras.length - 1].style.color = 'var(--accent-2)';
+            paras[paras.length - 1].style.fontWeight = '600';
+          }
+        }, 2000);
+      }
+    }
+
+    closeBtn.addEventListener('click', () => {
+      expandEl.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+
+    expandEl.addEventListener('click', (e) => {
+      if (e.target === expandEl) {
+        expandEl.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  </script>
+</body>
+</html>

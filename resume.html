@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume — Adal Seju | Full-Stack Developer</title>
+  <meta name="description" content="The interactive resume of Adal Seju — developer, designer, and prank enthusiast.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .resume-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(10,10,15,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color); padding: 0 40px;
+    }
+    .resume-nav-inner {
+      max-width: 1200px; margin: 0 auto; display: flex;
+      align-items: center; justify-content: space-between; height: 64px;
+    }
+    .resume-nav-links { display: flex; gap: 24px; align-items: center; }
+    .resume-nav-links a {
+      color: var(--text-secondary); text-decoration: none;
+      font-family: var(--font-secondary); font-size: 0.9rem;
+      transition: color var(--transition-fast);
+    }
+    .resume-nav-links a:hover, .resume-nav-links a.active { color: var(--accent-2); }
+
+    .resume-page { padding: 140px 0 80px; position: relative; z-index: 1; }
+    .resume-header { text-align: center; margin-bottom: 60px; }
+    .resume-header h1 {
+      font-family: var(--font-primary); font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 900; margin-bottom: 12px;
+    }
+    .resume-header p { color: var(--text-secondary); font-size: 1rem; }
+    .resume-actions {
+      display: flex; gap: 12px; justify-content: center; margin-top: 24px;
+    }
+    .resume-btn {
+      padding: 12px 28px; border-radius: var(--radius-xl);
+      font-family: var(--font-primary); font-weight: 600; font-size: 0.85rem;
+      cursor: none; transition: var(--transition-fast);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+      border: none;
+    }
+    .resume-btn-primary { background: var(--gradient-primary); color: white; }
+    .resume-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124, 92, 252, 0.4); }
+    .resume-btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); }
+    .resume-btn-ghost:hover { border-color: var(--accent-1); color: var(--text-primary); }
+
+    .resume-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 48px; max-width: 1000px; margin: 0 auto; }
+
+    .resume-sidebar h3 {
+      font-family: var(--font-primary); font-size: 0.8rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px; color: var(--accent-1);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+    .resume-sidebar h3::after {
+      content: ''; flex: 1; height: 1px; background: var(--border-color);
+    }
+    .sidebar-section { margin-bottom: 40px; }
+    .sidebar-skill { margin-bottom: 16px; }
+    .sidebar-skill-name {
+      font-family: var(--font-secondary); font-size: 0.85rem;
+      color: var(--text-primary); margin-bottom: 6px;
+      display: flex; justify-content: space-between;
+    }
+    .sidebar-skill-name span { color: var(--accent-2); font-family: var(--font-mono); font-size: 0.75rem; }
+    .sidebar-bar {
+      width: 100%; height: 4px; background: var(--bg-tertiary);
+      border-radius: 4px; overflow: hidden;
+    }
+    .sidebar-bar-fill {
+      height: 100%; background: var(--gradient-primary); border-radius: 4px;
+      width: 0%; transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sidebar-contact-item {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+      font-size: 0.85rem; color: var(--text-secondary);
+    }
+    .sidebar-contact-item span { color: var(--accent-1); }
+    .sidebar-lang {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .sidebar-lang-tag {
+      padding: 4px 12px; background: rgba(124, 92, 252, 0.1);
+      color: var(--accent-2); border-radius: var(--radius-sm);
+      font-family: var(--font-mono); font-size: 0.75rem;
+    }
+
+    .resume-main h3 {
+      font-family: var(--font-primary); font-size: 0.8rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px; color: var(--accent-1);
+      margin-bottom: 24px; display: flex; align-items: center; gap: 8px;
+    }
+    .resume-main h3::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
+    .main-section { margin-bottom: 48px; }
+
+    .timeline-item {
+      position: relative; padding-left: 28px; margin-bottom: 32px;
+      border-left: 2px solid var(--border-color);
+    }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -6px; top: 6px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--gradient-primary);
+    }
+    .timeline-dates {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--accent-2); margin-bottom: 4px;
+    }
+    .timeline-title {
+      font-family: var(--font-primary); font-size: 1.1rem;
+      font-weight: 700; margin-bottom: 4px;
+    }
+    .timeline-company { color: var(--accent-3); font-weight: 500; margin-bottom: 8px; }
+    .timeline-desc {
+      color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;
+    }
+    .timeline-desc li { margin-bottom: 4px; }
+
+    .project-mini {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .project-mini-card {
+      padding: 20px; background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); transition: var(--transition-medium);
+      cursor: none; text-decoration: none;
+    }
+    .project-mini-card:hover {
+      border-color: var(--border-glow); transform: translateY(-4px);
+    }
+    .project-mini-card h4 {
+      font-family: var(--font-primary); font-size: 0.95rem;
+      font-weight: 700; margin-bottom: 4px; color: var(--text-primary);
+    }
+    .project-mini-card p {
+      font-size: 0.8rem; color: var(--text-secondary);
+    }
+    .project-mini-card .pm-tech {
+      font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--accent-2); margin-top: 8px;
+    }
+
+    .download-prank-msg {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(10,10,15,0.9); backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color); border-radius: var(--radius-xl);
+      padding: 12px 24px; font-family: var(--font-mono); font-size: 0.85rem;
+      color: var(--accent-3); z-index: 9999; opacity: 0; transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .download-prank-msg.visible { opacity: 1; }
+
+    @media (max-width: 768px) {
+      .resume-layout { grid-template-columns: 1fr; }
+      .project-mini { grid-template-columns: 1fr; }
+      .resume-nav-links { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  <div class="bg-orbs"><div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div><div class="bg-orb orb-3"></div></div>
+  <div id="custom-cursor" class="custom-cursor"></div>
+
+  <nav class="resume-nav">
+    <div class="resume-nav-inner">
+      <a href="/" class="nav-logo"><span class="logo-bracket">{</span><span class="logo-text">AS</span><span class="logo-bracket">}</span></a>
+      <div class="resume-nav-links">
+        <a href="/">Home</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/resume.html" class="active">Resume</a>
+        <a href="/playground.html">Playground</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container resume-page">
+    <header class="resume-header">
+      <h1><span class="gradient-text">Adal Seju</span></h1>
+      <p>Full-Stack Developer · Designer · Prank Engineer</p>
+      <div class="resume-actions">
+        <button class="resume-btn resume-btn-primary" id="download-resume">📄 Download PDF</button>
+        <button class="resume-btn resume-btn-ghost" id="print-resume">🖨️ Print</button>
+      </div>
+    </header>
+
+    <div class="resume-layout">
+      <!-- Sidebar -->
+      <aside class="resume-sidebar">
+        <div class="sidebar-section">
+          <h3>Contact</h3>
+          <div class="sidebar-contact-item"><span>📧</span> adalseju@gmail.com</div>
+          <div class="sidebar-contact-item"><span>💻</span> github.com/adal3396</div>
+          <div class="sidebar-contact-item"><span>📍</span> India</div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Skills</h3>
+          <div class="sidebar-skill">
+            <div class="sidebar-skill-name">JavaScript / TypeScript <span id="skill-js">0%</span></div>
+            <div class="sidebar-bar"><div class="sidebar-bar-fill" data-width="92" id="bar-js"></div></div>
+          </div>
+          <div class="sidebar-skill">
+            <div class="sidebar-skill-name">React / Next.js <span id="skill-react">0%</span></div>
+            <div class="sidebar-bar"><div class="sidebar-bar-fill" data-width="88" id="bar-react"></div></div>
+          </div>
+          <div class="sidebar-skill">
+            <div class="sidebar-skill-name">Node.js / Express <span id="skill-node">0%</span></div>
+            <div class="sidebar-bar"><div class="sidebar-bar-fill" data-width="85" id="bar-node"></div></div>
+          </div>
+          <div class="sidebar-skill">
+            <div class="sidebar-skill-name">CSS / Design Systems <span id="skill-css">0%</span></div>
+            <div class="sidebar-bar"><div class="sidebar-bar-fill" data-width="90" id="bar-css"></div></div>
+          </div>
+          <div class="sidebar-skill">
+            <div class="sidebar-skill-name">Python / ML <span id="skill-py">0%</span></div>
+            <div class="sidebar-bar"><div class="sidebar-bar-fill" data-width="78" id="bar-py"></div></div>
+          </div>
+          <div class="sidebar-skill">
+            <div class="sidebar-skill-name">Prank Engineering <span id="skill-prank">0%</span></div>
+            <div class="sidebar-bar"><div class="sidebar-bar-fill" data-width="100" id="bar-prank" style="background: var(--gradient-secondary);"></div></div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Languages</h3>
+          <div class="sidebar-lang">
+            <span class="sidebar-lang-tag">English</span>
+            <span class="sidebar-lang-tag">Hindi</span>
+            <span class="sidebar-lang-tag">JavaScript</span>
+            <span class="sidebar-lang-tag">Sarcasm</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="resume-main">
+        <div class="main-section">
+          <h3>Education</h3>
+          <div class="timeline-item">
+            <div class="timeline-dates">2023 — Present</div>
+            <div class="timeline-title">B.Tech in Computer Science</div>
+            <div class="timeline-company">IIIT (Indian Institute of Information Technology)</div>
+            <div class="timeline-desc">Specializing in software engineering & web technologies.</div>
+          </div>
+        </div>
+
+        <div class="main-section">
+          <h3>Experience</h3>
+          <div class="timeline-item">
+            <div class="timeline-dates">2025 — Present</div>
+            <div class="timeline-title">Full-Stack Developer</div>
+            <div class="timeline-company">Freelance</div>
+            <div class="timeline-desc">
+              <ul>
+                <li>Built production web apps with React, Next.js, and Node.js</li>
+                <li>Designed and deployed AI-powered stock prediction dashboards</li>
+                <li>Created a RISC CPU simulator with full visual debugger</li>
+              </ul>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dates">2024 — 2025</div>
+            <div class="timeline-title">Prank Engineer</div>
+            <div class="timeline-company">Self-Employed (this portfolio)</div>
+            <div class="timeline-desc">
+              <ul>
+                <li>Engineered 21 hidden pranks across a vanilla JS portfolio</li>
+                <li>Implemented Web Audio API sound effects without external dependencies</li>
+                <li>Achieved a 100% rate of visitor confusion 🎭</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="main-section">
+          <h3>Projects</h3>
+          <div class="project-mini">
+            <a href="https://stock-forecast-nu.vercel.app" target="_blank" class="project-mini-card">
+              <h4>🚀 Stock Forecast AI</h4>
+              <p>CNN + STFT analysis with real-time dashboard</p>
+              <div class="pm-tech">React · Node.js · Python</div>
+            </a>
+            <a href="https://risc-simulator.vercel.app" target="_blank" class="project-mini-card">
+              <h4>🖥️ RISC CPU Simulator</h4>
+              <p>Step-by-step execution visualization</p>
+              <div class="pm-tech">TypeScript · Express · React</div>
+            </a>
+            <a href="https://nextnest-two.vercel.app" target="_blank" class="project-mini-card">
+              <h4>🏠 NextNest Platform</h4>
+              <p>Donor-orphanage connection platform</p>
+              <div class="pm-tech">Next.js · Supabase · Tailwind</div>
+            </a>
+            <a href="/" class="project-mini-card">
+              <h4>🎭 Prankraft Portfolio</h4>
+              <p>This very website. 21 hidden pranks.</p>
+              <div class="pm-tech">Vanilla HTML · CSS · JS</div>
+            </a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="download-prank-msg" id="prank-msg"></div>
+
+  <script>
+    // Cursor
+    const cursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+    });
+
+    // Animate skill bars on load
+    setTimeout(() => {
+      document.querySelectorAll('.sidebar-bar-fill').forEach(bar => {
+        const target = parseInt(bar.getAttribute('data-width'));
+        bar.style.width = target + '%';
+        // Animate percentage text
+        const id = bar.id.replace('bar-', 'skill-');
+        const label = document.getElementById(id);
+        if (label) {
+          let current = 0;
+          const interval = setInterval(() => {
+            current += 2;
+            if (current >= target) { current = target; clearInterval(interval); }
+            label.textContent = current + '%';
+          }, 30);
+        }
+      });
+
+      // Prank: "Prank Engineering" overflows to 150%
+      setTimeout(() => {
+        const prankBar = document.getElementById('bar-prank');
+        const prankLabel = document.getElementById('skill-prank');
+        prankBar.style.width = '150%';
+        prankBar.style.transition = 'width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        let val = 100;
+        const iv = setInterval(() => {
+          val += 3;
+          if (val >= 150) { val = 150; clearInterval(iv); prankLabel.textContent = '150% 🎭'; }
+          else { prankLabel.textContent = val + '%'; }
+        }, 50);
+      }, 2000);
+    }, 500);
+
+    // Download prank
+    const dlBtn = document.getElementById('download-resume');
+    const prankMsg = document.getElementById('prank-msg');
+    let dlCount = 0;
+    const dlMessages = [
+      "📄 Downloading... just kidding! This resume is interactive. 😏",
+      "📄 Still trying? The resume IS the website!",
+      "📄 Fine, here's a PDF: [ERROR: PDF printer caught fire 🔥]",
+      "📄 OK seriously, screenshot it. Ctrl+P works too... maybe.",
+    ];
+
+    dlBtn.addEventListener('click', () => {
+      prankMsg.textContent = dlMessages[Math.min(dlCount, dlMessages.length - 1)];
+      prankMsg.classList.add('visible');
+      setTimeout(() => prankMsg.classList.remove('visible'), 3000);
+      dlCount++;
+
+      if (dlCount >= 4) {
+        dlBtn.textContent = '📄 Fine, Print It';
+        dlBtn.addEventListener('click', () => window.print(), { once: true });
+      }
+    });
+
+    // Print prank
+    document.getElementById('print-resume').addEventListener('click', () => {
+      prankMsg.textContent = "🖨️ Sending to printer... the printer is in another dimension.";
+      prankMsg.classList.add('visible');
+      setTimeout(() => {
+        prankMsg.classList.remove('visible');
+        setTimeout(() => window.print(), 500);
+      }, 2000);
+    });
+  </script>
+</body>
+</html>

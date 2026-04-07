@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page Not Found | Adal Seju</title>
+  <meta name="description" content="The page you're looking for has escaped. Can you catch it?">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { overflow: hidden; }
+    .page-404 {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      position: relative; z-index: 1; padding: 40px 20px;
+    }
+    .glitch-404 {
+      font-family: var(--font-primary); font-size: clamp(6rem, 15vw, 12rem);
+      font-weight: 900; line-height: 1; margin-bottom: 20px;
+      background: var(--gradient-primary); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+      position: relative; animation: glitchShake 3s infinite;
+    }
+    .glitch-404::before, .glitch-404::after {
+      content: '404'; position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; background: var(--gradient-primary);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glitch-404::before {
+      animation: glitchBefore 3s infinite; clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+      transform: translate(-2px, -2px); opacity: 0.8;
+    }
+    .glitch-404::after {
+      animation: glitchAfter 3s infinite; clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
+      transform: translate(2px, 2px); opacity: 0.8;
+    }
+    @keyframes glitchShake {
+      0%, 100% { transform: translate(0); }
+      2% { transform: translate(2px, -1px); }
+      4% { transform: translate(-2px, 1px); }
+      6% { transform: translate(0); }
+    }
+    @keyframes glitchBefore {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(3px, -3px); }
+      60% { transform: translate(-1px, 1px); }
+    }
+    @keyframes glitchAfter {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(3px, -2px); }
+      40% { transform: translate(-2px, 2px); }
+      60% { transform: translate(1px, -1px); }
+    }
+    .error-subtitle {
+      font-family: var(--font-primary); font-size: 1.5rem;
+      font-weight: 600; margin-bottom: 12px; color: var(--text-primary);
+    }
+    .error-msg {
+      color: var(--text-secondary); font-size: 1rem;
+      max-width: 480px; margin: 0 auto 40px; line-height: 1.6;
+    }
+    .error-msg span { color: var(--accent-2); }
+    .error-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .error-btn {
+      padding: 14px 32px; border-radius: var(--radius-xl);
+      font-family: var(--font-primary); font-weight: 600; font-size: 0.9rem;
+      cursor: none; transition: var(--transition-fast);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .error-btn-primary { background: var(--gradient-primary); color: white; border: none; }
+    .error-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124, 92, 252, 0.4); }
+    .error-btn-secondary { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); }
+    .error-btn-secondary:hover { border-color: var(--accent-1); color: var(--text-primary); }
+
+    /* Catch the page game */
+    .runaway-page {
+      position: fixed; width: 60px; height: 60px; border-radius: 50%;
+      background: var(--gradient-primary); display: flex; align-items: center;
+      justify-content: center; font-size: 1.5rem; cursor: none;
+      transition: none; z-index: 100; box-shadow: 0 0 30px rgba(124, 92, 252, 0.4);
+      animation: pageBounce 2s ease-in-out infinite;
+    }
+    @keyframes pageBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    .game-msg {
+      position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-tertiary);
+      opacity: 0; transition: opacity 0.5s; z-index: 100;
+    }
+    .game-msg.visible { opacity: 1; }
+    .catch-count {
+      position: fixed; top: 80px; right: 30px; font-family: var(--font-mono);
+      font-size: 0.85rem; color: var(--accent-2); z-index: 100;
+      background: rgba(10,10,15,0.8); padding: 8px 16px; border-radius: var(--radius-md);
+      border: 1px solid var(--border-color); opacity: 0; transition: opacity 0.5s;
+    }
+    .catch-count.visible { opacity: 1; }
+
+    /* Error log ticker */
+    .error-log {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+      background: rgba(10, 10, 15, 0.9); border-top: 1px solid var(--border-color);
+      padding: 8px 20px; font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--accent-3); overflow: hidden; white-space: nowrap;
+    }
+    .error-log-inner { display: inline-block; animation: ticker 30s linear infinite; }
+    @keyframes ticker { from { transform: translateX(100vw); } to { transform: translateX(-200%); } }
+  </style>
+</head>
+<body>
+  <!-- Animated Background -->
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  <div class="bg-orbs"><div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div><div class="bg-orb orb-3"></div></div>
+
+  <!-- Custom Cursor -->
+  <div id="custom-cursor" class="custom-cursor"></div>
+
+  <!-- Back nav -->
+  <nav class="navbar" style="position:fixed;top:0;left:0;right:0;z-index:1000;">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo"><span class="logo-bracket">{</span><span class="logo-text">AS</span><span class="logo-bracket">}</span></a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/blog.html" class="nav-link">Blog</a>
+        <a href="/resume.html" class="nav-link">Resume</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 404 Content -->
+  <main class="page-404">
+    <div class="glitch-404">404</div>
+    <h1 class="error-subtitle">This page ran away! 🏃💨</h1>
+    <p class="error-msg">
+      The page you were looking for pulled a <span>classic prank</span> and disappeared.
+      Maybe it's hiding. Maybe it never existed. <br>Either way, it's not here.
+    </p>
+    <div class="error-actions">
+      <a href="/" class="error-btn error-btn-primary">← Take Me Home</a>
+      <button class="error-btn error-btn-secondary" id="catch-btn">🎮 Catch the Page</button>
+    </div>
+  </main>
+
+  <!-- Runaway page (hidden initially) -->
+  <div id="runaway-page" class="runaway-page" style="display:none;">📄</div>
+  <div id="game-msg" class="game-msg">Click the runaway page to catch it!</div>
+  <div id="catch-count" class="catch-count">Caught: <span id="caught-num">0</span>/5</div>
+
+  <!-- Error log ticker -->
+  <div class="error-log">
+    <div class="error-log-inner">
+      [ERR_PAGE_NOT_FOUND] at route "/unknown" • [WARN] CSS variable --humor not defined • [ERR] Button.onClick: humor overflow at line 42 • [INFO] Tried to load page, page said "no thanks" • [ERR] 404: Page is on vacation 🏖️ • [WARN] User may be lost, deploying breadcrumbs • [ERR] fetch('/missing-page') returned "lol" • [INFO] Attempting to bribe page back with cookies 🍪 •
+    </div>
+  </div>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+
+    // Catch the page mini-game
+    const catchBtn = document.getElementById('catch-btn');
+    const runaway = document.getElementById('runaway-page');
+    const gameMsg = document.getElementById('game-msg');
+    const catchCount = document.getElementById('catch-count');
+    const caughtNum = document.getElementById('caught-num');
+    let caught = 0;
+    let gameActive = false;
+
+    function moveRunaway() {
+      const x = Math.random() * (window.innerWidth - 80) + 20;
+      const y = Math.random() * (window.innerHeight - 80) + 20;
+      runaway.style.left = x + 'px';
+      runaway.style.top = y + 'px';
+    }
+
+    catchBtn.addEventListener('click', () => {
+      if (gameActive) return;
+      gameActive = true;
+      runaway.style.display = 'flex';
+      gameMsg.classList.add('visible');
+      catchCount.classList.add('visible');
+      moveRunaway();
+      catchBtn.style.display = 'none';
+    });
+
+    runaway.addEventListener('mouseenter', () => {
+      if (!gameActive) return;
+      // Run away from cursor!
+      moveRunaway();
+    });
+
+    runaway.addEventListener('click', () => {
+      if (!gameActive) return;
+      caught++;
+      caughtNum.textContent = caught;
+
+      if (caught >= 5) {
+        gameActive = false;
+        runaway.style.display = 'none';
+        gameMsg.textContent = '🎉 You caught the page! But it was the wrong one... Click to go home.';
+        gameMsg.style.color = '#00d4ff';
+        setTimeout(() => { window.location.href = '/'; }, 3000);
+      } else {
+        // Brief flash
+        runaway.style.background = 'linear-gradient(135deg, #22c55e, #00d4ff)';
+        runaway.textContent = '✅';
+        setTimeout(() => {
+          runaway.style.background = 'var(--gradient-primary)';
+          runaway.textContent = '📄';
+          moveRunaway();
+        }, 300);
+      }
+    });
+
+    // Random fun console
+    console.log('%c🎭 Even the 404 page is pranked!', 'color: #ff6b9d; font-size: 16px; font-weight: bold;');
+    console.log('%cThe page you wanted is probably hiding in /secret.html 🤫', 'color: #8888a0; font-size: 12px;');
+  </script>
+</body>
+</html>

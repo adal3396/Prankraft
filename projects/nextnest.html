@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NextNest Platform — Project | Adal Seju</title>
+  <meta name="description" content="A platform connecting donors and orphanages with real-time inventory management.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/pages.css">
+</head>
+<body>
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  <div class="bg-orbs"><div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div><div class="bg-orb orb-3"></div></div>
+  <div id="custom-cursor" class="custom-cursor"></div>
+
+  <nav class="page-nav">
+    <div class="page-nav-inner">
+      <a href="/" class="nav-logo"><span class="logo-bracket">{</span><span class="logo-text">AS</span><span class="logo-bracket">}</span></a>
+      <div class="page-nav-links">
+        <a href="/">Home</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/resume.html">Resume</a>
+        <a href="/playground.html">Playground</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container project-page">
+    <a href="/#projects" class="breadcrumb">← Back to Projects</a>
+
+    <div class="project-hero">
+      <div class="project-icon" style="background: linear-gradient(135deg, #1a2a40, #1a4b8c);">🏠</div>
+      <h1>NextNest Platform</h1>
+      <p class="project-tagline">A community platform connecting donors with orphanages, featuring real-time inventory tracking, multi-role portals, and donation management.</p>
+      <div class="project-links">
+        <a href="https://nextnest-two.vercel.app" target="_blank" class="proj-btn proj-btn-primary">🚀 Live Demo</a>
+        <a href="https://github.com/adal3396/IIITnestnext.git" target="_blank" class="proj-btn proj-btn-secondary">📦 Source Code</a>
+      </div>
+    </div>
+
+    <div class="project-body">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>NextNest bridges the gap between donors who want to help and orphanages that need support. The platform provides dedicated portals for donors, orphanage administrators, and super admins, enabling transparent donation tracking, inventory management, and communication.</p>
+      </section>
+
+      <section class="proj-section">
+        <h2>Tech Stack</h2>
+        <div class="tech-pills">
+          <span class="tech-pill">Next.js 14</span>
+          <span class="tech-pill">Supabase</span>
+          <span class="tech-pill">Tailwind CSS</span>
+          <span class="tech-pill">TypeScript</span>
+          <span class="tech-pill">PostgreSQL</span>
+          <span class="tech-pill">Row Level Security</span>
+          <span class="tech-pill">Vercel</span>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <h2>Key Features</h2>
+        <div class="feature-grid">
+          <div class="feature-card"><span>👥</span><h3>Multi-Role Portals</h3><p>Separate interfaces for donors, orphanage admins, and super administrators</p></div>
+          <div class="feature-card"><span>📦</span><h3>Inventory Tracking</h3><p>Real-time tracking of donated goods with status updates and history</p></div>
+          <div class="feature-card"><span>🔐</span><h3>Row Level Security</h3><p>Supabase RLS policies ensure data isolation between organizations</p></div>
+          <div class="feature-card"><span>📊</span><h3>Admin Dashboard</h3><p>Comprehensive analytics for donation trends, inventory levels, and user activity</p></div>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <h2>Architecture</h2>
+        <div class="arch-diagram">
+          <div class="arch-step"><div class="arch-num">1</div><div><strong>Frontend</strong><br>Next.js + Tailwind</div></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-step"><div class="arch-num">2</div><div><strong>Auth</strong><br>Supabase Auth + RLS</div></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-step"><div class="arch-num">3</div><div><strong>Database</strong><br>PostgreSQL + Realtime</div></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-step"><div class="arch-num">4</div><div><strong>Deploy</strong><br>Vercel Edge Network</div></div>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <h2>Challenges & Learnings</h2>
+        <ul class="challenge-list">
+          <li><strong>Multi-tenant security:</strong> Implementing Row Level Security policies in Supabase that correctly isolate orphanage data while allowing donors cross-organization visibility.</li>
+          <li><strong>Real-time updates:</strong> Using Supabase Realtime subscriptions to instantly reflect donation status changes across all connected clients.</li>
+          <li><strong>Seed data generation:</strong> Creating realistic test data with proper relationships between donors, orphanages, and donations required careful orchestration.</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="project-footer-nav">
+      <a href="/projects/risc-simulator.html" class="next-project">← Previous: RISC CPU Simulator</a>
+    </div>
+  </div>
+
+  <script>
+    const cursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', e => { cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; });
+  </script>
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playground — Adal Seju | Interactive Experiments</title>
+  <meta name="description" content="Interactive experiments, mini-games, and visual toys.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .pg-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(10,10,15,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color); padding: 0 40px;
+    }
+    .pg-nav-inner {
+      max-width: 1200px; margin: 0 auto; display: flex;
+      align-items: center; justify-content: space-between; height: 64px;
+    }
+    .pg-nav-links { display: flex; gap: 24px; }
+    .pg-nav-links a {
+      color: var(--text-secondary); text-decoration: none;
+      font-family: var(--font-secondary); font-size: 0.9rem;
+      transition: color var(--transition-fast);
+    }
+    .pg-nav-links a:hover, .pg-nav-links a.active { color: var(--accent-2); }
+
+    .pg-page { padding: 140px 0 80px; position: relative; z-index: 1; }
+    .pg-header { text-align: center; margin-bottom: 60px; }
+    .pg-header h1 {
+      font-family: var(--font-primary); font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 900; margin-bottom: 12px;
+    }
+    .pg-header p { color: var(--text-secondary); max-width: 500px; margin: 0 auto; }
+
+    .pg-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px; margin-bottom: 60px;
+    }
+    .pg-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg); overflow: hidden;
+      transition: var(--transition-medium);
+    }
+    .pg-card:hover { border-color: var(--border-glow); }
+    .pg-card-header {
+      padding: 24px 24px 0; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .pg-card-header h3 {
+      font-family: var(--font-primary); font-size: 1.1rem; font-weight: 700;
+    }
+    .pg-card-header span { font-size: 1.5rem; }
+    .pg-card-desc {
+      padding: 8px 24px 0; font-size: 0.85rem; color: var(--text-secondary);
+    }
+    .pg-card-body { padding: 24px; min-height: 200px; position: relative; }
+
+    /* Drawing Canvas */
+    .draw-canvas {
+      width: 100%; height: 180px; border-radius: var(--radius-sm);
+      background: var(--bg-tertiary); cursor: crosshair;
+    }
+    .draw-controls {
+      display: flex; gap: 8px; margin-top: 12px; align-items: center;
+    }
+    .draw-color {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid transparent; cursor: none;
+      transition: var(--transition-fast);
+    }
+    .draw-color.active { border-color: white; transform: scale(1.2); }
+    .draw-clear {
+      margin-left: auto; padding: 6px 14px; border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);
+      color: var(--text-secondary); font-size: 0.75rem;
+      font-family: var(--font-mono); cursor: none;
+    }
+
+    /* Color mixer */
+    .mixer-display {
+      width: 100%; height: 80px; border-radius: var(--radius-md);
+      margin-bottom: 16px; display: flex; align-items: center;
+      justify-content: center; font-family: var(--font-mono);
+      font-size: 0.85rem; transition: background 0.3s;
+    }
+    .mixer-sliders label {
+      display: flex; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--text-secondary); margin-bottom: 4px;
+    }
+    .mixer-sliders input[type="range"] {
+      width: 100%; margin-bottom: 12px; accent-color: var(--accent-1);
+    }
+
+    /* Typing speed */
+    .type-prompt {
+      font-family: var(--font-mono); font-size: 0.85rem;
+      padding: 16px; background: var(--bg-tertiary);
+      border-radius: var(--radius-sm); color: var(--text-tertiary);
+      line-height: 1.6; margin-bottom: 12px; user-select: none;
+    }
+    .type-prompt .correct { color: var(--accent-2); }
+    .type-prompt .wrong { color: var(--accent-3); background: rgba(255,107,157,0.15); }
+    .type-prompt .current { border-bottom: 2px solid var(--accent-1); color: var(--text-primary); }
+    .type-input {
+      width: 100%; padding: 12px; background: var(--bg-card);
+      border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+      color: var(--text-primary); font-family: var(--font-mono);
+      font-size: 0.85rem; outline: none;
+    }
+    .type-input:focus { border-color: var(--accent-1); }
+    .type-stats {
+      display: flex; gap: 16px; margin-top: 12px;
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-tertiary);
+    }
+    .type-stats span.val { color: var(--accent-2); }
+
+    /* Gravity sandbox */
+    .gravity-box {
+      width: 100%; height: 180px; background: var(--bg-tertiary);
+      border-radius: var(--radius-sm); position: relative; overflow: hidden;
+      cursor: crosshair;
+    }
+    .gravity-ball {
+      position: absolute; border-radius: 50%; pointer-events: none;
+    }
+    .gravity-info {
+      margin-top: 8px; font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--text-tertiary);
+    }
+
+    /* ASCII art */
+    .ascii-output {
+      font-family: var(--font-mono); font-size: 0.5rem;
+      line-height: 0.6rem; white-space: pre; color: var(--accent-1);
+      text-align: center; overflow: hidden;
+    }
+    .ascii-controls {
+      display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+    }
+    .ascii-btn {
+      padding: 6px 14px; border-radius: var(--radius-sm);
+      background: rgba(124, 92, 252, 0.1); border: 1px solid var(--border-color);
+      color: var(--accent-2); font-size: 0.75rem;
+      font-family: var(--font-mono); cursor: none; transition: var(--transition-fast);
+    }
+    .ascii-btn:hover { border-color: var(--accent-1); background: rgba(124,92,252,0.2); }
+
+    /* Sound pad */
+    .sound-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    .sound-pad {
+      aspect-ratio: 1; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; cursor: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 1px solid var(--border-color);
+    }
+    .sound-pad:hover { transform: scale(0.95); }
+    .sound-pad:active { transform: scale(0.88); }
+
+    @media (max-width: 768px) {
+      .pg-grid { grid-template-columns: 1fr; }
+      .pg-nav-links { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  <div class="bg-orbs"><div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div><div class="bg-orb orb-3"></div></div>
+  <div id="custom-cursor" class="custom-cursor"></div>
+
+  <nav class="pg-nav">
+    <div class="pg-nav-inner">
+      <a href="/" class="nav-logo"><span class="logo-bracket">{</span><span class="logo-text">AS</span><span class="logo-bracket">}</span></a>
+      <div class="pg-nav-links">
+        <a href="/">Home</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/resume.html">Resume</a>
+        <a href="/playground.html" class="active">Playground</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container pg-page">
+    <header class="pg-header">
+      <h1>The <span class="gradient-text">Playground</span></h1>
+      <p>Interactive experiments, mini-games, and creative toys. Click, drag, and break things.</p>
+    </header>
+
+    <div class="pg-grid">
+      <!-- 1. Drawing Canvas -->
+      <div class="pg-card">
+        <div class="pg-card-header"><h3>Pixel Canvas</h3><span>🎨</span></div>
+        <p class="pg-card-desc">Draw something. It probably won't be saved.</p>
+        <div class="pg-card-body">
+          <canvas id="draw-canvas" class="draw-canvas"></canvas>
+          <div class="draw-controls">
+            <div class="draw-color active" style="background:#7c5cfc" data-color="#7c5cfc"></div>
+            <div class="draw-color" style="background:#00d4ff" data-color="#00d4ff"></div>
+            <div class="draw-color" style="background:#ff6b9d" data-color="#ff6b9d"></div>
+            <div class="draw-color" style="background:#ffd93d" data-color="#ffd93d"></div>
+            <div class="draw-color" style="background:#22c55e" data-color="#22c55e"></div>
+            <div class="draw-color" style="background:#fff" data-color="#ffffff"></div>
+            <button class="draw-clear" id="draw-clear">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Color Mixer -->
+      <div class="pg-card">
+        <div class="pg-card-header"><h3>Color Mixer</h3><span>🌈</span></div>
+        <p class="pg-card-desc">Mix your own colors with RGB sliders.</p>
+        <div class="pg-card-body">
+          <div class="mixer-display" id="mixer-display">rgb(124, 92, 252)</div>
+          <div class="mixer-sliders">
+            <label>Red <span id="r-val">124</span></label>
+            <input type="range" id="r-slider" min="0" max="255" value="124">
+            <label>Green <span id="g-val">92</span></label>
+            <input type="range" id="g-slider" min="0" max="255" value="92">
+            <label>Blue <span id="b-val">252</span></label>
+            <input type="range" id="b-slider" min="0" max="255" value="252">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Typing Speed -->
+      <div class="pg-card">
+        <div class="pg-card-header"><h3>Typing Speed Test</h3><span>⌨️</span></div>
+        <p class="pg-card-desc">How fast can you type this ridiculous sentence?</p>
+        <div class="pg-card-body">
+          <div class="type-prompt" id="type-prompt"></div>
+          <input type="text" class="type-input" id="type-input" placeholder="Start typing...">
+          <div class="type-stats">
+            <span>WPM: <span class="val" id="wpm">0</span></span>
+            <span>Accuracy: <span class="val" id="accuracy">100%</span></span>
+            <span>Time: <span class="val" id="time-el">0s</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Gravity Sandbox -->
+      <div class="pg-card">
+        <div class="pg-card-header"><h3>Gravity Sandbox</h3><span>🌍</span></div>
+        <p class="pg-card-desc">Click to spawn bouncing balls. Physics included.</p>
+        <div class="pg-card-body">
+          <div class="gravity-box" id="gravity-box"></div>
+          <div class="gravity-info">Click to add balls · They bounce off walls · Max: 30</div>
+        </div>
+      </div>
+
+      <!-- 5. Sound Pad -->
+      <div class="pg-card">
+        <div class="pg-card-header"><h3>Sound Pad</h3><span>🎵</span></div>
+        <p class="pg-card-desc">Make music (or noise). Each pad plays a different tone.</p>
+        <div class="pg-card-body">
+          <div class="sound-grid" id="sound-grid">
+            <div class="sound-pad" style="background:rgba(124,92,252,0.15)" data-freq="261">🎹</div>
+            <div class="sound-pad" style="background:rgba(0,212,255,0.15)" data-freq="294">🥁</div>
+            <div class="sound-pad" style="background:rgba(255,107,157,0.15)" data-freq="330">🎸</div>
+            <div class="sound-pad" style="background:rgba(255,217,61,0.15)" data-freq="349">🎺</div>
+            <div class="sound-pad" style="background:rgba(34,197,94,0.15)" data-freq="392">🎻</div>
+            <div class="sound-pad" style="background:rgba(124,92,252,0.3)" data-freq="440">🪗</div>
+            <div class="sound-pad" style="background:rgba(0,212,255,0.3)" data-freq="494">🔔</div>
+            <div class="sound-pad" style="background:rgba(255,107,157,0.3)" data-freq="523">✨</div>
+            <div class="sound-pad" style="background:rgba(255,217,61,0.3)" data-freq="587">🎶</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. ASCII Art -->
+      <div class="pg-card">
+        <div class="pg-card-header"><h3>ASCII Art Generator</h3><span>🔤</span></div>
+        <p class="pg-card-desc">Instant ASCII art. Because why not.</p>
+        <div class="pg-card-body">
+          <div class="ascii-output" id="ascii-output"></div>
+          <div class="ascii-controls">
+            <button class="ascii-btn" data-art="skull">💀 Skull</button>
+            <button class="ascii-btn" data-art="heart">❤️ Heart</button>
+            <button class="ascii-btn" data-art="cat">🐱 Cat</button>
+            <button class="ascii-btn" data-art="code">💻 Code</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+    });
+
+    // 1. Drawing Canvas
+    const drawCanvas = document.getElementById('draw-canvas');
+    const dctx = drawCanvas.getContext('2d');
+    let drawing = false, drawColor = '#7c5cfc';
+    drawCanvas.width = drawCanvas.offsetWidth;
+    drawCanvas.height = drawCanvas.offsetHeight;
+    dctx.lineWidth = 3; dctx.lineCap = 'round';
+
+    drawCanvas.addEventListener('mousedown', (e) => { drawing = true; dctx.beginPath(); dctx.moveTo(e.offsetX, e.offsetY); });
+    drawCanvas.addEventListener('mousemove', (e) => { if (!drawing) return; dctx.strokeStyle = drawColor; dctx.lineTo(e.offsetX, e.offsetY); dctx.stroke(); });
+    drawCanvas.addEventListener('mouseup', () => drawing = false);
+    drawCanvas.addEventListener('mouseleave', () => drawing = false);
+
+    document.querySelectorAll('.draw-color').forEach(c => {
+      c.addEventListener('click', () => {
+        document.querySelector('.draw-color.active')?.classList.remove('active');
+        c.classList.add('active');
+        drawColor = c.getAttribute('data-color');
+      });
+    });
+    document.getElementById('draw-clear').addEventListener('click', () => {
+      dctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    });
+
+    // 2. Color Mixer
+    const mixer = document.getElementById('mixer-display');
+    ['r','g','b'].forEach(ch => {
+      document.getElementById(ch + '-slider').addEventListener('input', () => {
+        const r = document.getElementById('r-slider').value;
+        const g = document.getElementById('g-slider').value;
+        const b = document.getElementById('b-slider').value;
+        document.getElementById('r-val').textContent = r;
+        document.getElementById('g-val').textContent = g;
+        document.getElementById('b-val').textContent = b;
+        const color = `rgb(${r}, ${g}, ${b})`;
+        mixer.style.background = color;
+        mixer.textContent = color;
+        mixer.style.color = (parseInt(r)+parseInt(g)+parseInt(b)) > 380 ? '#000' : '#fff';
+      });
+    });
+
+    // 3. Typing Speed
+    const sentences = [
+      "the quick brown fox jumps over the lazy developer",
+      "css is not a programming language but it programs my anxiety",
+      "git push force and pray to the deployment gods",
+      "my code works and i have no idea why that scares me",
+    ];
+    const sentence = sentences[Math.floor(Math.random() * sentences.length)];
+    const promptEl = document.getElementById('type-prompt');
+    const inputEl = document.getElementById('type-input');
+    let startTime = null, correct = 0, wrong = 0;
+
+    function renderPrompt(typed) {
+      promptEl.innerHTML = sentence.split('').map((ch, i) => {
+        if (i < typed.length) {
+          return typed[i] === ch ? `<span class="correct">${ch}</span>` : `<span class="wrong">${ch}</span>`;
+        } else if (i === typed.length) {
+          return `<span class="current">${ch}</span>`;
+        }
+        return ch;
+      }).join('');
+    }
+    renderPrompt('');
+
+    inputEl.addEventListener('input', () => {
+      if (!startTime) startTime = Date.now();
+      const typed = inputEl.value;
+      renderPrompt(typed);
+
+      correct = 0; wrong = 0;
+      for (let i = 0; i < typed.length; i++) {
+        if (typed[i] === sentence[i]) correct++;
+        else wrong++;
+      }
+
+      const elapsed = (Date.now() - startTime) / 1000;
+      const words = correct / 5;
+      const wpm = Math.round((words / elapsed) * 60) || 0;
+      const acc = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 100;
+
+      document.getElementById('wpm').textContent = wpm;
+      document.getElementById('accuracy').textContent = acc + '%';
+      document.getElementById('time-el').textContent = elapsed.toFixed(1) + 's';
+    });
+
+    // 4. Gravity Sandbox
+    const gBox = document.getElementById('gravity-box');
+    const balls = [];
+    const GRAVITY = 0.3, BOUNCE = 0.7, FRICTION = 0.99;
+
+    gBox.addEventListener('click', (e) => {
+      if (balls.length >= 30) return;
+      const rect = gBox.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const size = Math.random() * 16 + 8;
+      const colors = ['#7c5cfc','#00d4ff','#ff6b9d','#ffd93d','#22c55e'];
+      const ball = document.createElement('div');
+      ball.className = 'gravity-ball';
+      const color = colors[Math.floor(Math.random()*colors.length)];
+      ball.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;background:${color};box-shadow:0 0 ${size}px ${color}80;`;
+      gBox.appendChild(ball);
+      balls.push({ el: ball, x, y, vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*2, size });
+    });
+
+    function updateBalls() {
+      const bw = gBox.offsetWidth, bh = gBox.offsetHeight;
+      balls.forEach(b => {
+        b.vy += GRAVITY;
+        b.vx *= FRICTION;
+        b.x += b.vx;
+        b.y += b.vy;
+        if (b.y + b.size > bh) { b.y = bh - b.size; b.vy = -b.vy * BOUNCE; }
+        if (b.y < 0) { b.y = 0; b.vy = -b.vy * BOUNCE; }
+        if (b.x + b.size > bw) { b.x = bw - b.size; b.vx = -b.vx * BOUNCE; }
+        if (b.x < 0) { b.x = 0; b.vx = -b.vx * BOUNCE; }
+        b.el.style.left = b.x + 'px';
+        b.el.style.top = b.y + 'px';
+      });
+      requestAnimationFrame(updateBalls);
+    }
+    updateBalls();
+
+    // 5. Sound Pad
+    document.querySelectorAll('.sound-pad').forEach(pad => {
+      pad.addEventListener('click', () => {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.frequency.value = parseInt(pad.getAttribute('data-freq'));
+          osc.type = ['sine','square','triangle','sawtooth'][Math.floor(Math.random()*4)];
+          gain.gain.value = 0.1;
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+          osc.start(); osc.stop(ctx.currentTime + 0.5);
+          pad.style.transform = 'scale(0.9)';
+          pad.style.boxShadow = `0 0 20px ${pad.style.background}`;
+          setTimeout(() => { pad.style.transform = ''; pad.style.boxShadow = ''; }, 200);
+        } catch(e) {}
+      });
+    });
+
+    // 6. ASCII Art
+    const asciiArts = {
+      skull: `
+    ░░░░░░░░░░░░░░
+    ░░▄▀▀▀▀▀▀▀▀▄░░
+    ░█░░░░░░░░░░█░
+    ░█░░▀░░░▀░░░█░
+    ░░▀░░░▀░░░▀░░░
+    ░░░░▄▀▀▀▄░░░░░
+    ░░░░█░░░█░░░░░
+    ░░░░░▀▀▀░░░░░░`.trim(),
+      heart: `
+    ░░░░░░░░░░░░░░░░
+    ░░░▄▀▀▀▄░▄▀▀▀▄░
+    ░░█░░░░░█░░░░░█
+    ░░░█░░░░░░░░░█░
+    ░░░░▀█░░░░░█▀░░
+    ░░░░░░▀█░█▀░░░░
+    ░░░░░░░░▀░░░░░░`.trim(),
+      cat: `
+    ░░░░░░░░░░░░░░
+    ░░▐▀▄░░░▄▀▌░░░
+    ░░▐░░▀▀▀░░▌░░░
+    ░░▐░▀░░░▀░▌░░░
+    ░░░▀▄░▲░▄▀░░░░
+    ░░░░░▀▀▀░░░░░░`.trim(),
+      code: `
+    ┌─────────────────────┐
+    │ function prank() {  │
+    │   return "gotcha!";  │
+    │ }                    │
+    │ // TODO: more chaos  │
+    └─────────────────────┘`.trim(),
+    };
+
+    const asciiOutput = document.getElementById('ascii-output');
+    asciiOutput.textContent = asciiArts.skull;
+
+    document.querySelectorAll('.ascii-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const art = btn.getAttribute('data-art');
+        asciiOutput.textContent = asciiArts[art] || '???';
+      });
+    });
+  </script>
+</body>
+</html>

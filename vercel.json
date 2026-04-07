@@ -2,5 +2,16 @@
   "buildCommand": "",
   "outputDirectory": ".",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/projects/:path*", "destination": "/projects/:path*" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Prank", "value": "You checked the headers? Impressive. 🎭" }
+      ]
+    }
+  ]
 }

@@ -24,7 +24,36 @@
     gravityEnabled: false,
     particlesCreated: false,
     confettiActive: false,
+    themeClickCount: 0,
+    revealShown: false,
   };
+
+  // Full catalog of pranks for the reveal screen
+  const PRANK_CATALOG = {
+    'nav-scramble': { name: 'Text Scrambler', icon: '🔤' },
+    'hire-me': { name: 'Desperate Hire', icon: '🥺' },
+    'upside-down': { name: 'Upside Down', icon: '🙃' },
+    'excessive-click': { name: 'Earthquake', icon: '🫨' },
+    'cv-download': { name: 'CV Not Found', icon: '📄' },
+    'cv-flee': { name: 'Runaway CV', icon: '🏃' },
+    'fleeing-skills': { name: 'Shy Skills', icon: '😅' },
+    'skill-overflow': { name: 'Skill Overflow', icon: '📊' },
+    'testimonial-swap': { name: 'Fake Reviews', icon: '🤥' },
+    'auto-type': { name: 'Mind Reader', icon: '🔮' },
+    'bsod': { name: 'Blue Screen', icon: '💀' },
+    'gravity': { name: 'Gravity Mode', icon: '🌍' },
+    'social-link': { name: 'Social 404', icon: '📱' },
+    'konami-code': { name: 'Konami Code', icon: '🎮' },
+    'theme-neon': { name: 'Neon Mode', icon: '💡' },
+    'cookie-banner': { name: 'Cookie Chaos', icon: '🍪' },
+    'context-menu': { name: 'Fake Right-Click', icon: '🖱️' },
+    'clipboard': { name: 'Clipboard Hijack', icon: '📋' },
+    'tab-title': { name: 'Tab Title Prank', icon: '📑' },
+    'console-egg': { name: 'Console Art', icon: '🖥️' },
+    'scroll-lie': { name: 'Lying Progress', icon: '⏫' },
+  };
+
+  const TOTAL_PRANKS = Object.keys(PRANK_CATALOG).length;
 
   // ==========================================
   // UTILITY FUNCTIONS
@@ -45,15 +74,112 @@
     }, duration);
   }
 
+  // Play a sound using Web Audio API (no external files)
+  function playSound(type) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.value = 0.08;
+
+      if (type === 'click') {
+        osc.frequency.value = 800;
+        osc.type = 'sine';
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+        osc.start(); osc.stop(ctx.currentTime + 0.1);
+      } else if (type === 'error') {
+        osc.frequency.value = 200;
+        osc.type = 'sawtooth';
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.start(); osc.stop(ctx.currentTime + 0.3);
+      } else if (type === 'success') {
+        osc.frequency.value = 523;
+        osc.type = 'sine';
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+        osc.start(); osc.stop(ctx.currentTime + 0.2);
+        // Second note
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2); gain2.connect(ctx.destination);
+        osc2.frequency.value = 659; osc2.type = 'sine';
+        gain2.gain.value = 0.08;
+        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc2.start(ctx.currentTime + 0.15); osc2.stop(ctx.currentTime + 0.4);
+      } else if (type === 'whoosh') {
+        osc.frequency.value = 400;
+        osc.type = 'sine';
+        osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.start(); osc.stop(ctx.currentTime + 0.3);
+      } else if (type === 'boop') {
+        osc.frequency.value = 600;
+        osc.type = 'triangle';
+        osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        osc.start(); osc.stop(ctx.currentTime + 0.15);
+      }
+    } catch (e) { /* Audio not supported, fail silently */ }
+  }
+
   function trackPrank(name) {
     if (!state.pranksTriggered.has(name)) {
       state.prankCount++;
       state.pranksTriggered.add(name);
+      playSound('boop');
+      updatePrankCounter();
     }
-    // Show hint after 3 pranks
-    if (state.prankCount >= 3) {
+    // Show hint after 2 pranks (lowered from 3 so judges see it faster)
+    if (state.prankCount >= 2) {
       document.getElementById('footer-hint').classList.add('visible');
     }
+    // Show reveal modal after 8 pranks
+    if (state.prankCount >= 8 && !state.revealShown) {
+      state.revealShown = true;
+      setTimeout(() => showPrankReveal(), 2000);
+    }
+  }
+
+  function updatePrankCounter() {
+    const counter = document.getElementById('prank-counter');
+    const numEl = document.getElementById('prank-counter-num');
+    const totalEl = document.getElementById('prank-counter-total');
+
+    if (!counter.classList.contains('visible')) {
+      counter.classList.add('visible');
+    }
+
+    numEl.textContent = state.prankCount;
+    totalEl.textContent = TOTAL_PRANKS;
+
+    // Pulse animation
+    counter.classList.remove('pulse');
+    void counter.offsetWidth; // trigger reflow
+    counter.classList.add('pulse');
+  }
+
+  function showPrankReveal() {
+    const reveal = document.getElementById('prank-reveal');
+    const list = document.getElementById('prank-reveal-list');
+    const foundEl = document.getElementById('reveal-found');
+    const totalEl = document.getElementById('reveal-total');
+
+    foundEl.textContent = state.prankCount;
+    totalEl.textContent = TOTAL_PRANKS;
+    list.innerHTML = '';
+
+    Object.entries(PRANK_CATALOG).forEach(([key, info]) => {
+      const found = state.pranksTriggered.has(key);
+      const item = document.createElement('div');
+      item.className = `prank-item ${found ? 'found' : 'missing'}`;
+      item.innerHTML = `<span class="prank-item-icon">${found ? '✅' : '⬜'}</span> ${info.icon} ${info.name}`;
+      list.appendChild(item);
+    });
+
+    reveal.classList.remove('hidden');
+    playSound('success');
+    launchConfetti();
   }
 
   // ==========================================
@@ -344,7 +470,7 @@
           if (iterations > maxIterations) {
             clearInterval(scrambleTimeout);
 
-            if (state.navScrambleCount > 5 && Math.random() > 0.5) {
+            if (state.navScrambleCount > 3 && Math.random() > 0.4) {
               // Replace with funny text
               const funnyTexts = {
                 About: '🤷 Who??',
@@ -488,7 +614,7 @@
         fleeCount++;
 
         // Only start fleeing after a few normal hovers
-        if (fleeCount > 4 && Math.random() > 0.4) {
+        if (fleeCount > 2 && Math.random() > 0.3) {
           const dx = randomBetween(-80, 80);
           const dy = randomBetween(-40, 40);
           card.classList.add('fleeing');
@@ -698,6 +824,7 @@
     const percent = document.getElementById('bsod-percent');
     bsod.classList.remove('hidden');
     state.isBSOD = true;
+    playSound('error');
 
     let progress = 0;
     const interval = setInterval(() => {
@@ -828,6 +955,9 @@
 
     socials.forEach((link) => {
       link.addEventListener('click', (e) => {
+        // Let real links (GitHub) work normally
+        if (link.href && !link.href.endsWith('#')) return;
+
         e.preventDefault();
         const messages = [
           "Social media? In this economy? 📉",
@@ -1161,10 +1291,379 @@
   }
 
   // ==========================================
+  // CURSOR TRAIL
+  // ==========================================
+  function initCursorTrail() {
+    if (window.innerWidth <= 768) return;
+    const container = document.getElementById('cursor-trail-container');
+    if (!container) return;
+
+    const trailDots = [];
+    const TRAIL_LENGTH = 12;
+    const colors = ['rgba(124,92,252,', 'rgba(0,212,255,', 'rgba(255,107,157,'];
+
+    document.addEventListener('mousemove', (e) => {
+      const dot = document.createElement('div');
+      dot.className = 'cursor-trail-dot';
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = Math.random() * 4 + 3;
+      dot.style.cssText = `
+        left: ${e.clientX}px;
+        top: ${e.clientY}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: ${color}0.6);
+        box-shadow: 0 0 ${size * 2}px ${color}0.3);
+      `;
+      container.appendChild(dot);
+      trailDots.push({ el: dot, time: Date.now() });
+
+      // Fade and remove
+      requestAnimationFrame(() => {
+        dot.style.opacity = '0';
+        dot.style.transform = `scale(0) translate(${(Math.random()-0.5)*20}px, ${(Math.random()-0.5)*20}px)`;
+      });
+      setTimeout(() => {
+        dot.remove();
+        trailDots.shift();
+      }, 600);
+
+      // Cap trail length
+      while (trailDots.length > TRAIL_LENGTH) {
+        trailDots[0].el.remove();
+        trailDots.shift();
+      }
+    });
+  }
+
+  // ==========================================
+  // THEME TOGGLE PRANK
+  // ==========================================
+  function initThemeToggle() {
+    const btn = document.getElementById('theme-toggle');
+    const icon = document.getElementById('theme-icon');
+    if (!btn) return;
+
+    const modes = [
+      { name: 'neon', icon: '💡', class: 'neon-mode', msg: "✨ Welcome to the Neon Dimension!" },
+      { name: 'invert', icon: '🔄', class: 'inverted', msg: "🙃 Everything is backwards now!" },
+      { name: 'grayscale', icon: '🖤', class: 'grayscale', msg: "🎬 Film noir mode activated!" },
+      { name: 'normal', icon: '🌙', class: null, msg: "😌 Back to normal... or is it?" },
+    ];
+
+    btn.addEventListener('click', () => {
+      state.themeClickCount++;
+      playSound('click');
+
+      // Remove all mode classes
+      document.body.classList.remove('neon-mode', 'inverted', 'grayscale');
+
+      const modeIndex = (state.themeClickCount - 1) % modes.length;
+      const mode = modes[modeIndex];
+
+      if (mode.class) {
+        document.body.classList.add(mode.class);
+      }
+      icon.textContent = mode.icon;
+      showToast(mode.msg);
+
+      if (state.themeClickCount === 1) {
+        trackPrank('theme-neon');
+      }
+    });
+  }
+
+  // ==========================================
+  // PRANK COUNTER & REVEAL HANDLERS
+  // ==========================================
+  function initPrankCounterHandlers() {
+    const counter = document.getElementById('prank-counter');
+    const reveal = document.getElementById('prank-reveal');
+    const closeBtn = document.getElementById('prank-reveal-close');
+
+    // Click counter to show reveal
+    counter.addEventListener('click', () => {
+      if (state.prankCount > 0) {
+        showPrankReveal();
+      }
+    });
+
+    // Close reveal
+    closeBtn.addEventListener('click', () => {
+      reveal.classList.add('hidden');
+    });
+
+    // Click outside to close
+    reveal.addEventListener('click', (e) => {
+      if (e.target === reveal) {
+        reveal.classList.add('hidden');
+      }
+    });
+  }
+
+  // ==========================================
+  // FAKE COOKIE BANNER
+  // ==========================================
+  function initCookieBanner() {
+    const banner = document.getElementById('cookie-banner');
+    const acceptBtn = document.getElementById('cookie-accept');
+    const rejectBtn = document.getElementById('cookie-reject');
+    if (!banner) return;
+
+    let rejectCount = 0;
+
+    acceptBtn.addEventListener('click', () => {
+      playSound('success');
+      showToast("🍪 Cookies accepted! Your soul is now ours. Just kidding!");
+      trackPrank('cookie-banner');
+      banner.classList.add('hidden');
+    });
+
+    rejectBtn.addEventListener('click', () => {
+      rejectCount++;
+      playSound('boop');
+
+      if (rejectCount === 1) {
+        rejectBtn.textContent = "Are you sure? 🥺";
+        showToast("The cookies are sad now 😢");
+        // Move the banner to the top
+        banner.style.bottom = 'auto';
+        banner.style.top = '0';
+        banner.style.borderTop = 'none';
+        banner.style.borderBottom = '1px solid var(--border-color)';
+      } else if (rejectCount === 2) {
+        rejectBtn.textContent = "Fine, no cookies 😤";
+        // Shrink accept to grow reject
+        acceptBtn.textContent = "🍪 Please? 🍪";
+        banner.style.top = 'auto';
+        banner.style.bottom = '0';
+        banner.style.borderBottom = 'none';
+        banner.style.borderTop = '1px solid var(--border-color)';
+      } else if (rejectCount === 3) {
+        rejectBtn.textContent = "OK BYE!";
+        // Fake dismiss, then come back
+        banner.classList.add('hidden');
+        setTimeout(() => {
+          banner.classList.remove('hidden');
+          rejectBtn.textContent = "...I'm back 👋";
+          acceptBtn.textContent = "Accept (I give up)";
+          showToast("You can't escape the cookies! 🍪");
+        }, 1500);
+      } else {
+        // Finally dismiss
+        banner.classList.add('hidden');
+        showToast("Fine, no cookies. But we'll remember this. 🍪💔");
+        trackPrank('cookie-banner');
+      }
+    });
+  }
+
+  // ==========================================
+  // CUSTOM RIGHT-CLICK CONTEXT MENU
+  // ==========================================
+  function initContextMenu() {
+    const menu = document.getElementById('context-menu');
+    if (!menu) return;
+
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      trackPrank('context-menu');
+
+      menu.classList.remove('hidden');
+      menu.style.left = Math.min(e.clientX, window.innerWidth - 240) + 'px';
+      menu.style.top = Math.min(e.clientY, window.innerHeight - 280) + 'px';
+      playSound('click');
+    });
+
+    document.addEventListener('click', () => {
+      menu.classList.add('hidden');
+    });
+
+    menu.querySelectorAll('.context-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = item.getAttribute('data-action');
+
+        switch (action) {
+          case 'copy':
+            navigator.clipboard?.writeText("Nice try! This text was pranked 🎭");
+            showToast("📋 Copied! ...or did it? Check your clipboard 😏");
+            break;
+          case 'inspect':
+            showToast("🔍 Inspecting... ERROR: Element is too beautiful to inspect ✨");
+            break;
+          case 'source':
+            showToast("💻 The source code is written in pure ✨vibes✨");
+            setTimeout(() => {
+              window.open('https://github.com/adal3396', '_blank');
+            }, 1500);
+            break;
+          case 'confetti':
+            launchConfetti();
+            showToast("🎉 CONFETTI MODE ACTIVATED!");
+            break;
+          case 'flip':
+            document.body.classList.add('upside-down');
+            showToast("🙃 The world is upside down!");
+            setTimeout(() => document.body.classList.remove('upside-down'), 2500);
+            break;
+          case 'secret':
+            showToast("🤫 You found the secret! It's... there is no secret. Or is there? 🤔");
+            playSound('success');
+            break;
+        }
+        menu.classList.add('hidden');
+      });
+    });
+  }
+
+  // ==========================================
+  // CLIPBOARD HIJACK PRANK
+  // ==========================================
+  function initClipboardPrank() {
+    document.addEventListener('copy', (e) => {
+      const selection = document.getSelection().toString();
+      if (selection.length > 3) {
+        e.preventDefault();
+        const prankedTexts = [
+          selection + "\n\n— Copied from Adal Seju's amazing portfolio 🎭",
+          selection.split('').reverse().join('') + " (reversed for your convenience 🔄)",
+          "🍪 This text has been replaced by a cookie. Accept cookies to see the original.",
+          selection + "\n\nP.S. — Yes, even the clipboard is pranked here 😈",
+        ];
+        const pranked = prankedTexts[Math.floor(Math.random() * prankedTexts.length)];
+        e.clipboardData.setData('text/plain', pranked);
+        showToast("📋 Clipboard hijacked! Paste at your own risk 😈");
+        trackPrank('clipboard');
+      }
+    });
+  }
+
+  // ==========================================
+  // TAB TITLE PRANK
+  // ==========================================
+  function initTabTitlePrank() {
+    const originalTitle = document.title;
+    let titleInterval;
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        // User switched tabs
+        trackPrank('tab-title');
+        let msgIndex = 0;
+        const messages = [
+          "👋 Come back!",
+          "😢 I miss you...",
+          "🍕 I have pizza!",
+          "⚠️ Your tab is lonely",
+          "🎵 ♪ Hello from the other tab ♪",
+          "💔 Why did you leave?",
+          "🔥 Everything is fine...",
+        ];
+        document.title = messages[0];
+        titleInterval = setInterval(() => {
+          msgIndex = (msgIndex + 1) % messages.length;
+          document.title = messages[msgIndex];
+        }, 2000);
+      } else {
+        // User came back
+        clearInterval(titleInterval);
+        document.title = "🎉 You're back! — " + originalTitle;
+        setTimeout(() => { document.title = originalTitle; }, 2000);
+      }
+    });
+  }
+
+  // ==========================================
+  // CONSOLE EASTER EGG
+  // ==========================================
+  function initConsoleEasterEgg() {
+    const styles = [
+      'color: #7c5cfc; font-size: 20px; font-weight: bold; text-shadow: 0 0 10px #7c5cfc;',
+      'color: #00d4ff; font-size: 14px;',
+      'color: #ff6b9d; font-size: 12px; font-style: italic;',
+      'color: #ffd93d; font-size: 11px;',
+      'color: #8888a0; font-size: 11px;',
+    ];
+
+    console.log('%c🎭 PRANKRAFT DETECTED! 🎭', styles[0]);
+    console.log('%c╔═══════════════════════════════════════╗', styles[1]);
+    console.log('%c║  You found the console easter egg!     ║', styles[1]);
+    console.log('%c║  This portfolio is a Prankraft entry.  ║', styles[1]);
+    console.log('%c║  Built by Adal Seju with ❤️ and chaos ║', styles[1]);
+    console.log('%c╚═══════════════════════════════════════╝', styles[1]);
+    console.log('%c💡 Hint: Try the Konami Code! (↑↑↓↓←→←→BA)', styles[2]);
+    console.log('%c🍪 Also, try rejecting the cookie banner multiple times...', styles[3]);
+    console.log('%c🖱️ Right-click anywhere for a surprise!', styles[4]);
+
+    // Track it as discovered if DevTools is open
+    const devToolsCheck = /./;
+    let consoleTracked = false;
+    devToolsCheck.toString = function () {
+      if (!consoleTracked) {
+        consoleTracked = true;
+        trackPrank('console-egg');
+      }
+      return '';
+    };
+    console.log('%c', devToolsCheck);
+  }
+
+  // ==========================================
+  // SCROLL PROGRESS BAR (that lies)
+  // ==========================================
+  function initScrollProgress() {
+    const fill = document.getElementById('scroll-progress-fill');
+    if (!fill) return;
+
+    let lieMode = false;
+    let scrollCount = 0;
+
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      let progress = (scrollTop / docHeight) * 100;
+
+      scrollCount++;
+
+      // After scrolling a bit, start lying
+      if (scrollCount > 50 && !lieMode) {
+        lieMode = true;
+        trackPrank('scroll-lie');
+      }
+
+      if (lieMode) {
+        // Add random noise to the progress
+        const noise = Math.sin(scrollCount * 0.1) * 15;
+        progress = Math.max(0, Math.min(100, progress + noise));
+
+        // Sometimes go backwards
+        if (progress > 80 && Math.random() > 0.7) {
+          progress = progress - 30;
+        }
+
+        // Random color changes
+        if (Math.random() > 0.95) {
+          const colors = [
+            'linear-gradient(90deg, #ff6b9d, #ffd93d)',
+            'linear-gradient(90deg, #22c55e, #00d4ff)',
+            'var(--gradient-primary)',
+            'linear-gradient(90deg, #ff4444, #ff6b9d)',
+          ];
+          fill.style.background = colors[Math.floor(Math.random() * colors.length)];
+        }
+      }
+
+      fill.style.width = progress + '%';
+    });
+  }
+
+  // ==========================================
   // START ANIMATIONS AFTER LOAD
   // ==========================================
   function startAnimations() {
     initCursor();
+    initCursorTrail();
     initNavbar();
     initTypingEffect();
     animateCounters();
@@ -1172,6 +1671,7 @@
     initReveal();
     createParticles();
     initParticleNetwork();
+    initScrollProgress();
   }
 
   // ==========================================
@@ -1193,6 +1693,13 @@
     initLogoPrank();
     initAboutImagePrank();
     initScrollIndicatorPrank();
+    initThemeToggle();
+    initPrankCounterHandlers();
+    initCookieBanner();
+    initContextMenu();
+    initClipboardPrank();
+    initTabTitlePrank();
+    initConsoleEasterEgg();
   }
 
   // Wait for DOM

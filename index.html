@@ -59,6 +59,11 @@
     </div>
   </div>
 
+  <!-- Scroll Progress Bar -->
+  <div id="scroll-progress" class="scroll-progress">
+    <div id="scroll-progress-fill" class="scroll-progress-fill"></div>
+  </div>
+
   <!-- Navbar -->
   <nav id="navbar" class="navbar">
     <div class="nav-inner">
@@ -73,8 +78,13 @@
         <a href="#projects" class="nav-link" data-prank="scramble">Projects</a>
         <a href="#testimonials" class="nav-link" data-prank="scramble">Testimonials</a>
         <a href="#contact" class="nav-link" data-prank="scramble">Contact</a>
+        <a href="/blog.html" class="nav-link" style="color: var(--accent-2);">Blog</a>
+        <a href="/resume.html" class="nav-link" style="color: var(--accent-2);">Resume</a>
       </div>
       <button class="nav-cta" id="nav-cta">Hire Me</button>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+      </button>
       <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
         <span></span><span></span><span></span>
       </button>
@@ -272,7 +282,9 @@
               <span>🚀</span>
             </div>
             <div class="project-overlay">
-              <button class="project-link-btn" data-prank="flee-btn">View Project →</button>
+              <a href="/projects/stock-forecast.html" class="project-link-btn">View Details →</a>
+              <a href="https://stock-forecast-nu.vercel.app" target="_blank" rel="noopener" class="project-link-btn project-link-secondary">Live Demo</a>
+              <a href="https://github.com/adal3396/Stock-Forecast.git" target="_blank" rel="noopener" class="project-link-btn project-link-secondary">GitHub</a>
             </div>
           </div>
           <div class="project-info">
@@ -291,7 +303,9 @@
               <span>🖥️</span>
             </div>
             <div class="project-overlay">
-              <button class="project-link-btn" data-prank="flee-btn">View Project →</button>
+              <a href="/projects/risc-simulator.html" class="project-link-btn">View Details →</a>
+              <a href="https://risc-simulator.vercel.app" target="_blank" rel="noopener" class="project-link-btn project-link-secondary">Live Demo</a>
+              <a href="https://github.com/adal3396/Risc_Simulator.git" target="_blank" rel="noopener" class="project-link-btn project-link-secondary">GitHub</a>
             </div>
           </div>
           <div class="project-info">
@@ -310,7 +324,9 @@
               <span>🏠</span>
             </div>
             <div class="project-overlay">
-              <button class="project-link-btn" data-prank="flee-btn">View Project →</button>
+              <a href="/projects/nextnest.html" class="project-link-btn">View Details →</a>
+              <a href="https://nextnest-two.vercel.app" target="_blank" rel="noopener" class="project-link-btn project-link-secondary">Live Demo</a>
+              <a href="https://github.com/adal3396/IIITnestnext.git" target="_blank" rel="noopener" class="project-link-btn project-link-secondary">GitHub</a>
             </div>
           </div>
           <div class="project-info">
@@ -413,10 +429,10 @@
           <div class="contact-card">
             <div class="contact-card-icon">💻</div>
             <h3>GitHub</h3>
-            <p>github.com/adal3396</p>
+            <a href="https://github.com/adal3396" target="_blank" rel="noopener" style="color: var(--accent-2); text-decoration: none;">github.com/adal3396</a>
           </div>
           <div class="social-links">
-            <a href="#" class="social-link" id="social-github" aria-label="GitHub">
+            <a href="https://github.com/adal3396" target="_blank" rel="noopener" class="social-link" id="social-github" aria-label="GitHub">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
             </a>
             <a href="#" class="social-link" id="social-linkedin" aria-label="LinkedIn">
@@ -439,6 +455,39 @@
     </div>
   </footer>
 
+  <!-- Prank Counter Badge -->
+  <div id="prank-counter" class="prank-counter">
+    <span class="prank-counter-icon">🎭</span>
+    <span id="prank-counter-num">0</span>/<span id="prank-counter-total">15</span>
+  </div>
+
+  <!-- Secret Prank Reveal Section -->
+  <div id="prank-reveal" class="prank-reveal hidden">
+    <div class="prank-reveal-inner">
+      <button class="prank-reveal-close" id="prank-reveal-close">✕</button>
+      <div class="prank-reveal-header">
+        <span class="reveal-emoji">🏆</span>
+        <h2>You Found the Secrets!</h2>
+        <p>This isn't just a portfolio — it's a <span class="gradient-text">Prankraft</span> submission!</p>
+      </div>
+      <div class="prank-reveal-stats">
+        <div class="reveal-stat">
+          <span class="reveal-stat-num" id="reveal-found">0</span>
+          <span class="reveal-stat-label">Pranks Found</span>
+        </div>
+        <div class="reveal-stat">
+          <span class="reveal-stat-num" id="reveal-total">15</span>
+          <span class="reveal-stat-label">Total Pranks</span>
+        </div>
+      </div>
+      <div class="prank-reveal-list" id="prank-reveal-list"></div>
+      <p class="reveal-footer">Built for the IEEE Computer Society <strong>Prankraft</strong> competition. A portfolio disguised as chaos. 🎭</p>
+    </div>
+  </div>
+
+  <!-- Cursor Trail -->
+  <div id="cursor-trail-container"></div>
+
   <!-- Prank Notification -->
   <div id="prank-toast" class="prank-toast hidden">
     <span id="prank-toast-text"></span>
@@ -449,6 +498,29 @@
 
   <!-- Confetti Canvas -->
   <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+  <!-- Fake Cookie Banner -->
+  <div id="cookie-banner" class="cookie-banner">
+    <div class="cookie-content">
+      <span class="cookie-emoji">🍪</span>
+      <p>This website uses <strong>cookies</strong>, <strong>biscuits</strong>, and a sprinkle of <strong>chaos</strong> to enhance your experience.</p>
+    </div>
+    <div class="cookie-actions">
+      <button class="cookie-btn cookie-accept" id="cookie-accept">Accept All Cookies</button>
+      <button class="cookie-btn cookie-reject" id="cookie-reject">Reject (if you dare)</button>
+    </div>
+  </div>
+
+  <!-- Custom Right-Click Menu -->
+  <div id="context-menu" class="context-menu hidden">
+    <div class="context-item" data-action="copy">📋 Copy (or not)</div>
+    <div class="context-item" data-action="inspect">🔍 Inspect Element (good luck)</div>
+    <div class="context-item" data-action="source">💻 View Source Code</div>
+    <div class="context-divider"></div>
+    <div class="context-item" data-action="confetti">🎉 Confetti Mode</div>
+    <div class="context-item" data-action="flip">🙃 Flip Everything</div>
+    <div class="context-item" data-action="secret">🤫 Secret Menu Item</div>
+  </div>
 
   <script src="script.js"></script>
 </body>
