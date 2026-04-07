@@ -1151,7 +1151,11 @@
     let particles = [];
     let mouse = { x: -1000, y: -1000 };
     let animationId;
-    const PARTICLE_COUNT = Math.min(80, Math.floor(window.innerWidth / 18));
+    const getParticleCount = () => (
+      window.innerWidth <= 768
+        ? Math.min(65, Math.max(32, Math.floor(window.innerWidth / 10)))
+        : Math.min(80, Math.floor(window.innerWidth / 18))
+    );
     const CONNECTION_DISTANCE = 150;
     const MOUSE_RADIUS = 200;
 
@@ -1162,7 +1166,8 @@
 
     function createNetworkParticles() {
       particles = [];
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const particleCount = getParticleCount();
+      for (let i = 0; i < particleCount; i++) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
@@ -1269,7 +1274,7 @@
     window.addEventListener('resize', () => {
       resize();
       // Reset particles if screen size changes drastically
-      if (Math.abs(particles.length - Math.floor(window.innerWidth / 18)) > 10) {
+      if (Math.abs(particles.length - getParticleCount()) > 8) {
         createNetworkParticles();
       }
     });
@@ -1278,11 +1283,21 @@
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     });
+    document.addEventListener('touchmove', (e) => {
+      const t = e.touches && e.touches[0];
+      if (!t) return;
+      mouse.x = t.clientX;
+      mouse.y = t.clientY;
+    }, { passive: true });
 
     document.addEventListener('mouseleave', () => {
       mouse.x = -1000;
       mouse.y = -1000;
     });
+    document.addEventListener('touchend', () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    }, { passive: true });
 
     // Initialize
     resize();
@@ -1294,22 +1309,22 @@
   // CURSOR TRAIL
   // ==========================================
   function initCursorTrail() {
-    if (window.innerWidth <= 768) return;
     const container = document.getElementById('cursor-trail-container');
     if (!container) return;
 
     const trailDots = [];
-    const TRAIL_LENGTH = 12;
+    const isMobile = window.innerWidth <= 768;
+    const TRAIL_LENGTH = isMobile ? 6 : 12;
     const colors = ['rgba(124,92,252,', 'rgba(0,212,255,', 'rgba(255,107,157,'];
 
-    document.addEventListener('mousemove', (e) => {
+    const spawnDot = (x, y) => {
       const dot = document.createElement('div');
       dot.className = 'cursor-trail-dot';
       const color = colors[Math.floor(Math.random() * colors.length)];
-      const size = Math.random() * 4 + 3;
+      const size = isMobile ? (Math.random() * 3 + 2) : (Math.random() * 4 + 3);
       dot.style.cssText = `
-        left: ${e.clientX}px;
-        top: ${e.clientY}px;
+        left: ${x}px;
+        top: ${y}px;
         width: ${size}px;
         height: ${size}px;
         background: ${color}0.6);
@@ -1333,7 +1348,25 @@
         trailDots[0].el.remove();
         trailDots.shift();
       }
+    };
+
+    document.addEventListener('mousemove', (e) => {
+      if (isMobile) return;
+      spawnDot(e.clientX, e.clientY);
     });
+
+    if (isMobile) {
+      let lastTouchDotAt = 0;
+      document.addEventListener('touchmove', (e) => {
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+        const now = Date.now();
+        // Throttle touch trail creation for smooth mobile performance
+        if (now - lastTouchDotAt < 35) return;
+        lastTouchDotAt = now;
+        spawnDot(t.clientX, t.clientY);
+      }, { passive: true });
+    }
   }
 
   // ==========================================
