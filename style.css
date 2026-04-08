@@ -74,6 +74,16 @@ body {
   cursor: none;
 }
 
+button,
+a,
+.project-card,
+.skill-card,
+.testimonial-card,
+.contact-card,
+.context-item {
+  touch-action: manipulation;
+}
+
 @media (max-width: 768px) {
   body { cursor: auto; }
   .custom-cursor { display: none !important; }
@@ -116,6 +126,7 @@ img { max-width: 100%; display: block; }
   filter: blur(80px);
   opacity: 0.35;
   will-change: transform;
+  transform: translateZ(0);
 }
 
 .orb-1 {
@@ -638,6 +649,7 @@ img { max-width: 100%; display: block; }
   max-width: 900px;
   z-index: 1;
   position: relative;
+  will-change: transform, opacity;
 }
 
 .hero-badge {
@@ -738,6 +750,7 @@ img { max-width: 100%; display: block; }
   transition: var(--transition-medium);
   position: relative;
   overflow: hidden;
+  will-change: transform;
 }
 
 .btn-primary {
@@ -776,6 +789,10 @@ img { max-width: 100%; display: block; }
   border-color: var(--accent-1);
   background: rgba(124, 92, 252, 0.05);
   transform: translateY(-3px);
+}
+
+.btn:active {
+  transform: translateY(-1px) scale(0.98);
 }
 
 .btn-full {
@@ -847,6 +864,7 @@ img { max-width: 100%; display: block; }
   letter-spacing: 2px;
   text-transform: uppercase;
   animation: fadeInUp 0.8s 1.5s both;
+  will-change: transform, opacity;
 }
 
 .mouse {
@@ -1686,6 +1704,7 @@ body.neon-mode .contact-card {
   inset: 0;
   pointer-events: none;
   z-index: 10000;
+  contain: layout paint;
 }
 
 .cursor-trail-dot {
@@ -1696,6 +1715,7 @@ body.neon-mode .contact-card {
   pointer-events: none;
   z-index: 10000;
   transition: opacity 0.5s, transform 0.5s;
+  will-change: transform, opacity;
 }
 
 /* ============================================
@@ -1905,6 +1925,22 @@ body.neon-mode .contact-card {
   .reveal-stat-num { font-size: 2.2rem; }
   .cookie-banner { flex-direction: column; text-align: center; }
   .cookie-content { flex-direction: column; }
+  .scroll-indicator {
+    animation: fadeInUp 0.8s 1.2s both, float 3.5s ease-in-out infinite;
+  }
+  .bg-canvas {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-orb,
+  .aurora,
+  .scroll-indicator,
+  .cursor-trail-dot {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ============================================

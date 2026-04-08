@@ -54,12 +54,26 @@
   };
 
   const TOTAL_PRANKS = Object.keys(PRANK_CATALOG).length;
+  const IS_TOUCH_DEVICE = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+  const PREFERS_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ==========================================
   // UTILITY FUNCTIONS
   // ==========================================
   function randomBetween(min, max) {
     return Math.random() * (max - min) + min;
+  }
+
+  function rafThrottle(fn) {
+    let isQueued = false;
+    return (...args) => {
+      if (isQueued) return;
+      isQueued = true;
+      requestAnimationFrame(() => {
+        isQueued = false;
+        fn(...args);
+      });
+    };
   }
 
   function showToast(text, duration = 3000) {
@@ -367,13 +381,14 @@
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobile-menu');
 
-    window.addEventListener('scroll', () => {
+    const onScroll = rafThrottle(() => {
       if (window.scrollY > 80) {
         navbar.classList.add('scrolled');
       } else {
         navbar.classList.remove('scrolled');
       }
     });
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     hamburger.addEventListener('click', () => {
       hamburger.classList.toggle('active');
@@ -1019,7 +1034,7 @@
   function initScrollPrank() {
     let scrollCount = 0;
 
-    window.addEventListener('scroll', () => {
+    const onScroll = rafThrottle(() => {
       scrollCount++;
 
       // At a certain scroll point, briefly reverse scroll direction
@@ -1038,6 +1053,7 @@
         }, 150);
       }
     });
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
   // ==========================================
@@ -1083,18 +1099,29 @@
     const imageWrapper = document.getElementById('about-image');
     if (!imageWrapper) return;
 
-    imageWrapper.addEventListener('mousemove', (e) => {
+    const applyTilt = (clientX, clientY) => {
       const rect = imageWrapper.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const x = (clientX - rect.left) / rect.width - 0.5;
+      const y = (clientY - rect.top) / rect.height - 0.5;
 
       imageWrapper.style.transform = `perspective(600px) rotateY(${x * 15}deg) rotateX(${-y * 15}deg)`;
-    });
+    };
+
+    imageWrapper.addEventListener('mousemove', (e) => applyTilt(e.clientX, e.clientY));
+    imageWrapper.addEventListener('touchmove', (e) => {
+      const t = e.touches && e.touches[0];
+      if (!t) return;
+      applyTilt(t.clientX, t.clientY);
+    }, { passive: true });
 
     imageWrapper.addEventListener('mouseleave', () => {
       imageWrapper.style.transform = '';
       imageWrapper.style.transition = 'transform 0.5s';
     });
+    imageWrapper.addEventListener('touchend', () => {
+      imageWrapper.style.transform = '';
+      imageWrapper.style.transition = 'transform 0.35s';
+    }, { passive: true });
 
     imageWrapper.addEventListener('mouseenter', () => {
       imageWrapper.style.transition = 'transform 0.1s';
@@ -1145,19 +1172,24 @@
   function initParticleNetwork() {
     const canvas = document.getElementById('bg-canvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+    if (!ctx) return;
 
     let width, height;
     let particles = [];
-    let mouse = { x: -1000, y: -1000 };
+    let pointer = { x: -1000, y: -1000 };
+    let pointerTarget = { x: -1000, y: -1000 };
     let animationId;
     const getParticleCount = () => (
-      window.innerWidth <= 768
-        ? Math.min(65, Math.max(32, Math.floor(window.innerWidth / 10)))
+      PREFERS_REDUCED_MOTION
+        ? 18
+        : window.innerWidth <= 768
+        ? Math.min(60, Math.max(28, Math.floor(window.innerWidth / 11)))
         : Math.min(80, Math.floor(window.innerWidth / 18))
     );
-    const CONNECTION_DISTANCE = 150;
-    const MOUSE_RADIUS = 200;
+    const getConnectionDistance = () => (PREFERS_REDUCED_MOTION ? 95 : (window.innerWidth <= 768 ? 120 : 150));
+    const getPointerRadius = () => (PREFERS_REDUCED_MOTION ? 120 : (window.innerWidth <= 768 ? 170 : 200));
+    let lastFrameTime = 0;
 
     function resize() {
       width = canvas.width = window.innerWidth;
@@ -1187,15 +1219,23 @@
     }
 
     function drawNetwork(time) {
+      const delta = Math.min((time - lastFrameTime) || 16.7, 33);
+      const dt = delta / 16.7;
+      lastFrameTime = time;
       ctx.clearRect(0, 0, width, height);
+      const connectionDistance = getConnectionDistance();
+      const pointerRadius = getPointerRadius();
+      const smoothing = IS_TOUCH_DEVICE ? 0.16 : 0.24;
+      pointer.x += (pointerTarget.x - pointer.x) * smoothing;
+      pointer.y += (pointerTarget.y - pointer.y) * smoothing;
 
       // Update and draw particles
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
         // Move
-        p.x += p.vx;
-        p.y += p.vy;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
 
         // Wrap around edges
         if (p.x < -10) p.x = width + 10;
@@ -1204,18 +1244,18 @@
         if (p.y > height + 10) p.y = -10;
 
         // Mouse interaction — gentle push
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < MOUSE_RADIUS) {
-          const force = (MOUSE_RADIUS - dist) / MOUSE_RADIUS;
-          p.vx += (dx / dist) * force * 0.08;
-          p.vy += (dy / dist) * force * 0.08;
+        const dx = p.x - pointer.x;
+        const dy = p.y - pointer.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) + 0.001;
+        if (dist < pointerRadius) {
+          const force = (pointerRadius - dist) / pointerRadius;
+          p.vx += (dx / dist) * force * 0.08 * dt;
+          p.vy += (dy / dist) * force * 0.08 * dt;
         }
 
         // Dampen velocity
-        p.vx *= 0.995;
-        p.vy *= 0.995;
+        p.vx *= Math.pow(0.995, dt);
+        p.vy *= Math.pow(0.995, dt);
 
         // Pulse effect
         const pulse = Math.sin(time * p.pulseSpeed + p.pulseOffset) * 0.5 + 0.5;
@@ -1244,8 +1284,8 @@
           const cdy = p.y - p2.y;
           const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
 
-          if (cdist < CONNECTION_DISTANCE) {
-            const lineAlpha = (1 - cdist / CONNECTION_DISTANCE) * 0.15;
+          if (cdist < connectionDistance) {
+            const lineAlpha = (1 - cdist / connectionDistance) * 0.15;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
@@ -1256,11 +1296,11 @@
         }
 
         // Connection to mouse
-        if (dist < MOUSE_RADIUS * 1.5) {
-          const lineAlpha = (1 - dist / (MOUSE_RADIUS * 1.5)) * 0.25;
+        if (dist < pointerRadius * 1.5) {
+          const lineAlpha = (1 - dist / (pointerRadius * 1.5)) * 0.25;
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
-          ctx.lineTo(mouse.x, mouse.y);
+          ctx.lineTo(pointer.x, pointer.y);
           ctx.strokeStyle = `rgba(0, 212, 255, ${lineAlpha})`;
           ctx.lineWidth = 0.8;
           ctx.stroke();
@@ -1280,23 +1320,25 @@
     });
 
     document.addEventListener('mousemove', (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+      pointerTarget.x = e.clientX;
+      pointerTarget.y = e.clientY;
     });
     document.addEventListener('touchmove', (e) => {
       const t = e.touches && e.touches[0];
       if (!t) return;
-      mouse.x = t.clientX;
-      mouse.y = t.clientY;
+      pointerTarget.x = t.clientX;
+      pointerTarget.y = t.clientY;
     }, { passive: true });
 
     document.addEventListener('mouseleave', () => {
-      mouse.x = -1000;
-      mouse.y = -1000;
+      pointerTarget.x = -1000;
+      pointerTarget.y = -1000;
     });
     document.addEventListener('touchend', () => {
-      mouse.x = -1000;
-      mouse.y = -1000;
+      setTimeout(() => {
+        pointerTarget.x = -1000;
+        pointerTarget.y = -1000;
+      }, 420);
     }, { passive: true });
 
     // Initialize
@@ -1652,7 +1694,7 @@
     let lieMode = false;
     let scrollCount = 0;
 
-    window.addEventListener('scroll', () => {
+    const onScroll = rafThrottle(() => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       let progress = (scrollTop / docHeight) * 100;
@@ -1689,6 +1731,7 @@
 
       fill.style.width = progress + '%';
     });
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
   // ==========================================
